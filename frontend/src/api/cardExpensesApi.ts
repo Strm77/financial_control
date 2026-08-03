@@ -31,6 +31,19 @@ export async function fetchCardExpenses(token: string, paymentId: number): Promi
   return data.expenses
 }
 
+export async function fetchAllCardExpenses(token: string): Promise<CardExpense[]> {
+  const response = await fetch('/api/card-expenses', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  if (!response.ok) {
+    await parseError(response)
+  }
+
+  const data = (await response.json()) as { expenses: CardExpense[] }
+  return data.expenses
+}
+
 export async function createCardExpense(token: string, expense: NewCardExpense): Promise<CardExpense> {
   const response = await fetch('/api/card-expenses', {
     method: 'POST',

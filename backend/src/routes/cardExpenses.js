@@ -24,6 +24,11 @@ function toResponse(row) {
 }
 
 cardExpensesRouter.get('/', requireAuth, (req, res) => {
+  if (req.query.paymentId === undefined) {
+    const rows = db.prepare('SELECT * FROM card_expenses ORDER BY created_at DESC, id DESC').all();
+    return res.json({ expenses: rows.map(toResponse) });
+  }
+
   const paymentId = Number(req.query.paymentId);
   if (!Number.isInteger(paymentId)) {
     return res.status(400).json({ message: 'Informe um paymentId válido.' });

@@ -4,7 +4,8 @@ import { useMonth } from '../context/MonthContext'
 import { createDebt, deleteDebt, fetchDebts, updateDebt, type Debt } from '../api/debtsApi'
 import { ApiError } from '../api/authApi'
 import { IconEdit, IconTrash } from './icons'
-import { addMonthsToDate, formatCurrency, formatDate, yearMonthIndex } from '../utils/format'
+import { addMonthsToDate, formatCurrency, formatDate } from '../utils/format'
+import { getVisibleDebts } from '../utils/debts'
 import './DebtsTable.css'
 
 const EMPTY_FORM = {
@@ -139,26 +140,7 @@ export function DebtsTable() {
     await deleteDebt(token!, id)
   }
 
-  const selectedIndex = selectedMonth === 'all' ? null : year * 12 + (selectedMonth - 1)
-
-  const visibleDebts = debts
-    .map((debt) => {
-      if (selectedIndex === null) {
-        return { debt, projectedDueDate: debt.dueDate, visible: true }
-      }
-
-      const startIndex = yearMonthIndex(debt.dueDate)
-
-      if (!debt.recorrente) {
-        return { debt, projectedDueDate: debt.dueDate, visible: selectedIndex === startIndex }
-      }
-
-      const endIndex = yearMonthIndex(debt.dataFinal)
-      const visible = selectedIndex >= startIndex && selectedIndex <= endIndex
-      const projectedDueDate = visible ? addMonthsToDate(debt.dueDate, selectedIndex - startIndex) : debt.dueDate
-      return { debt, projectedDueDate, visible }
-    })
-    .filter((entry) => entry.visible)
+  const visibleDebts = getVisibleDebts(debts, selectedMonth, year)
 
   return (
     <div className="debts-section">

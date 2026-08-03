@@ -5,9 +5,10 @@ import { PaymentsTable } from '../components/PaymentsTable'
 import { IncomeTable } from '../components/IncomeTable'
 import { DebtsTable } from '../components/DebtsTable'
 import { GastoMesPage } from '../components/GastoMesPage'
+import { DashboardPage } from '../components/DashboardPage'
 import { IconDashboard, IconDebt, IconExpense, IconIncome, IconPayments, IconSettings } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
-import { MonthProvider, useMonth } from '../context/MonthContext'
+import { MonthProvider } from '../context/MonthContext'
 import { SettingsPage } from './SettingsPage'
 import './DashboardShell.css'
 
@@ -21,13 +22,6 @@ const MENU_ITEMS: MenuItem[] = [
 
 const FOOTER_ITEMS: MenuItem[] = [{ id: 'configuracoes', label: 'Configurações', icon: <IconSettings /> }]
 
-const SECTION_TEXT: Record<string, { title: string; text: (monthLabel: string) => string }> = {
-  dashboard: {
-    title: 'Nenhuma funcionalidade habilitada ainda',
-    text: (monthLabel) => `Um resumo geral das suas finanças em ${monthLabel} aparecerá aqui.`,
-  },
-}
-
 export function DashboardShell() {
   return (
     <MonthProvider>
@@ -38,7 +32,6 @@ export function DashboardShell() {
 
 function DashboardShellContent() {
   const { user, logout } = useAuth()
-  const { monthLabel } = useMonth()
   const [activeMenu, setActiveMenu] = useState(MENU_ITEMS[0].id)
 
   const activeItem = [...MENU_ITEMS, ...FOOTER_ITEMS].find((item) => item.id === activeMenu) ?? MENU_ITEMS[0]
@@ -49,14 +42,7 @@ function DashboardShellContent() {
     if (activeMenu === 'gasto-mes') return <GastoMesPage />
     if (activeMenu === 'pagamentos-mes') return <PaymentsTable />
     if (activeMenu === 'configuracoes') return <SettingsPage />
-
-    const section = SECTION_TEXT[activeMenu]
-    return (
-      <div className="neo-panel dashboard-placeholder">
-        <p className="dashboard-placeholder__title">{section.title}</p>
-        <p className="dashboard-placeholder__text">{section.text(monthLabel)}</p>
-      </div>
-    )
+    return <DashboardPage />
   }
 
   return (

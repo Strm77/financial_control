@@ -5,7 +5,7 @@ import { fetchPayments, type Payment } from '../api/paymentsApi'
 import { CardExpensePanel } from './CardExpensePanel'
 import './GastoMesPage.css'
 
-const CARD_CATEGORIES = ['Cartão', 'Cartão de Loja']
+export const CARD_CATEGORIES = ['Cartão', 'Cartão de Loja']
 
 export function GastoMesPage() {
   const { token } = useAuth()

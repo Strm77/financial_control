@@ -27,7 +27,7 @@ const EMPTY_FORM = {
   dueDate: '',
 }
 
-const STATUS_LABEL: Record<PaymentStatus, string> = {
+export const STATUS_LABEL: Record<PaymentStatus, string> = {
   pago: 'Pago',
   atrasado: 'Atrasado',
   parcial: 'Parcial',
