@@ -1,13 +1,23 @@
-.dashboard-screen {
+.app-shell {
   position: relative;
   min-height: 100svh;
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
   padding: 24px;
-  gap: 24px;
 }
 
-.dashboard-header {
+.app-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-topbar {
   position: relative;
   z-index: 1;
   display: flex;
@@ -16,19 +26,20 @@
   padding: 20px 28px;
 }
 
-.dashboard-header > div {
+.app-topbar > div {
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
-.dashboard-header__eyebrow {
+.app-topbar__eyebrow {
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
-.dashboard-header h1 {
+.app-topbar h1 {
   margin-top: 4px;
   font-size: 22px;
   font-weight: 600;
@@ -37,6 +48,7 @@
 .logout-button {
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
   padding: 10px 20px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.2);
@@ -55,7 +67,7 @@
   border-color: rgba(255, 255, 255, 0.32);
 }
 
-.dashboard-main {
+.app-main {
   position: relative;
   z-index: 1;
   flex: 1;
@@ -86,4 +98,12 @@
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.5;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+  }
 }
