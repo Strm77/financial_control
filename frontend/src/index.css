@@ -12,7 +12,9 @@
   --accent-indigo: #7c9cff;
   --accent-cyan: #63e6e2;
   --accent-emerald: #5fe3a1;
+  --accent-amber: #ffcf5c;
   --danger: #ff8a8a;
+  --status-gray: rgba(245, 247, 255, 0.32);
 }
 
 * {

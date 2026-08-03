@@ -14,7 +14,7 @@ interface ApiErrorBody {
 
 export class ApiError extends Error {}
 
-async function parseError(response: Response): Promise<never> {
+export async function parseError(response: Response): Promise<never> {
   let message = 'Não foi possível concluir a operação.'
   try {
     const body = (await response.json()) as ApiErrorBody

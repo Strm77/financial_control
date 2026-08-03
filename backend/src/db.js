@@ -30,6 +30,15 @@ db.exec(`
     details TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS payments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    description TEXT NOT NULL,
+    amount_cents INTEGER NOT NULL,
+    due_date TEXT NOT NULL,
+    paid INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 function seedDefaultUser() {
@@ -40,7 +49,42 @@ function seedDefaultUser() {
   db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run('Brunno.', passwordHash);
 }
 
+function seedDemoPayments() {
+  const { count } = db.prepare('SELECT COUNT(*) AS count FROM payments').get();
+  if (count > 0) return;
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const pastDay = Math.max(1, now.getDate() - 1);
+  const futureDay = Math.min(28, now.getDate() + 5);
+
+  const monthDate = (monthOffset, day) => {
+    const date = new Date(year, month + monthOffset, day);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  const demoPayments = [
+    { description: 'Aluguel', amount_cents: 180000, due_date: monthDate(0, pastDay), paid: 0 },
+    { description: 'Internet', amount_cents: 12000, due_date: monthDate(0, futureDay), paid: 0 },
+    { description: 'Água e luz', amount_cents: 22000, due_date: monthDate(0, Math.min(28, pastDay)), paid: 1 },
+    { description: 'Fatura do cartão', amount_cents: 45000, due_date: monthDate(1, 10), paid: 0 },
+    { description: 'Financiamento do carro', amount_cents: 98000, due_date: monthDate(2, 5), paid: 1 },
+  ];
+
+  const insert = db.prepare(
+    'INSERT INTO payments (description, amount_cents, due_date, paid) VALUES (?, ?, ?, ?)'
+  );
+  for (const payment of demoPayments) {
+    insert.run(payment.description, payment.amount_cents, payment.due_date, payment.paid);
+  }
+}
+
 seedDefaultUser();
+seedDemoPayments();
 
 export function logActivity(userId, event, details) {
   db.prepare('INSERT INTO activity_log (user_id, event, details) VALUES (?, ?, ?)').run(

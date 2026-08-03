@@ -1,10 +1,18 @@
-.app-shell {
+.page-shell {
   position: relative;
   min-height: 100svh;
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
   gap: 20px;
   padding: 24px;
+}
+
+.app-shell {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
 }
 
 .app-content {
@@ -101,9 +109,13 @@
 }
 
 @media (max-width: 760px) {
+  .page-shell {
+    padding: 16px;
+    gap: 16px;
+  }
+
   .app-shell {
     flex-direction: column;
-    padding: 16px;
     gap: 16px;
   }
 }

@@ -1,0 +1,75 @@
+.payments-list {
+  width: 100%;
+  max-width: 560px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.payment-row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  transition: background 0.15s ease;
+}
+
+.payment-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.payment-row__description {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.payment-row__date {
+  margin-top: 3px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.payment-row__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.payment-row__amount {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.payment-row__badge {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+.payment-row__badge--paid {
+  color: var(--accent-emerald);
+  background: rgba(95, 227, 161, 0.14);
+}
+
+.payment-row__badge--pending {
+  color: var(--accent-amber);
+  background: rgba(255, 207, 92, 0.14);
+}
+
+.payment-row__badge--overdue {
+  color: var(--danger);
+  background: rgba(255, 138, 138, 0.14);
+}

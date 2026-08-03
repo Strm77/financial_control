@@ -5,6 +5,7 @@ const TOKEN_STORAGE_KEY = 'financial_control.token'
 
 interface AuthContextValue {
   user: AuthUser | null
+  token: string | null
   isAuthenticated: boolean
   isLoading: boolean
   login: (username: string, password: string) => Promise<void>
@@ -61,8 +62,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isAuthenticated: Boolean(user), isLoading, login, logout }),
-    [user, isLoading, login, logout],
+    () => ({ user, token, isAuthenticated: Boolean(user), isLoading, login, logout }),
+    [user, token, isLoading, login, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
