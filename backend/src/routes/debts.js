@@ -4,9 +4,26 @@ import { requireAuth } from '../auth.js';
 
 export const debtsRouter = Router();
 
+function addMonths(isoDate, months) {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const date = new Date(year, month - 1 + months, day);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// A dívida deve exibir a última parcela (data final) com base em quantas parcelas
+// ainda restam a partir da data de vencimento informada (que é a próxima parcela em aberto).
+function computeDataFinal(dueDate, numeroParcelas, parcelaAtual) {
+  const remainingAfterThis = Math.max(0, numeroParcelas - parcelaAtual - 1);
+  return addMonths(dueDate, remainingAfterThis);
+}
+
 function toResponse(row) {
   const valorPagoCents = row.parcela_atual * row.valor_parcela_cents;
   const faltaPagarCents = Math.max(0, row.valor_contratado_cents - valorPagoCents);
+  const dataFinal = computeDataFinal(row.due_date, row.numero_parcelas, row.parcela_atual);
 
   return {
     id: row.id,
@@ -19,6 +36,8 @@ function toResponse(row) {
     faltaPagarCents,
     jurosPercent: row.juros_percent,
     dueDate: row.due_date,
+    recorrente: Boolean(row.recorrente),
+    dataFinal,
   };
 }
 
@@ -64,13 +83,13 @@ debtsRouter.post('/', requireAuth, (req, res) => {
     return res.status(400).json({ message: error });
   }
 
-  const { credor, valorContratadoCents, valorParcelaCents, numeroParcelas, parcelaAtual, jurosPercent, dueDate } =
+  const { credor, valorContratadoCents, valorParcelaCents, numeroParcelas, parcelaAtual, jurosPercent, dueDate, recorrente } =
     req.body;
 
   const result = db
     .prepare(
-      `INSERT INTO debts (credor, valor_contratado_cents, valor_parcela_cents, numero_parcelas, parcela_atual, juros_percent, due_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO debts (credor, valor_contratado_cents, valor_parcela_cents, numero_parcelas, parcela_atual, juros_percent, due_date, recorrente)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     )
     .run(
       credor.trim(),
@@ -79,7 +98,8 @@ debtsRouter.post('/', requireAuth, (req, res) => {
       numeroParcelas,
       parcelaAtual,
       jurosPercent ?? null,
-      dueDate
+      dueDate,
+      recorrente ? 1 : 0
     );
 
   const row = db.prepare('SELECT * FROM debts WHERE id = ?').get(Number(result.lastInsertRowid));
@@ -102,12 +122,12 @@ debtsRouter.patch('/:id', requireAuth, (req, res) => {
     return res.status(400).json({ message: error });
   }
 
-  const { credor, valorContratadoCents, valorParcelaCents, numeroParcelas, parcelaAtual, jurosPercent, dueDate } =
+  const { credor, valorContratadoCents, valorParcelaCents, numeroParcelas, parcelaAtual, jurosPercent, dueDate, recorrente } =
     req.body;
 
   db.prepare(
     `UPDATE debts SET credor = ?, valor_contratado_cents = ?, valor_parcela_cents = ?, numero_parcelas = ?,
-     parcela_atual = ?, juros_percent = ?, due_date = ? WHERE id = ?`
+     parcela_atual = ?, juros_percent = ?, due_date = ?, recorrente = ? WHERE id = ?`
   ).run(
     credor.trim(),
     Math.round(valorContratadoCents),
@@ -116,6 +136,7 @@ debtsRouter.patch('/:id', requireAuth, (req, res) => {
     parcelaAtual,
     jurosPercent ?? null,
     dueDate,
+    recorrente ? 1 : 0,
     id
   );
 

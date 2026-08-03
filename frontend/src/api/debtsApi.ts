@@ -11,6 +11,8 @@ export interface Debt {
   faltaPagarCents: number
   jurosPercent: number | null
   dueDate: string
+  recorrente: boolean
+  dataFinal: string
 }
 
 export interface NewDebt {
@@ -21,6 +23,7 @@ export interface NewDebt {
   parcelaAtual: number
   jurosPercent: number | null
   dueDate: string
+  recorrente: boolean
 }
 
 export async function fetchDebts(token: string): Promise<Debt[]> {

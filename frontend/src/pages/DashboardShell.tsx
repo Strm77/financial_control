@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { Sidebar, type MenuItem } from '../components/Sidebar'
 import { MonthSelector } from '../components/MonthSelector'
-import { PaymentsList } from '../components/PaymentsList'
+import { PaymentsTable } from '../components/PaymentsTable'
 import { IncomeTable } from '../components/IncomeTable'
 import { DebtsTable } from '../components/DebtsTable'
+import { GastoMesPage } from '../components/GastoMesPage'
 import { IconDashboard, IconDebt, IconExpense, IconIncome, IconPayments, IconSettings } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { MonthProvider, useMonth } from '../context/MonthContext'
@@ -25,10 +26,6 @@ const SECTION_TEXT: Record<string, { title: string; text: (monthLabel: string) =
     title: 'Nenhuma funcionalidade habilitada ainda',
     text: (monthLabel) => `Um resumo geral das suas finanças em ${monthLabel} aparecerá aqui.`,
   },
-  'gasto-mes': {
-    title: 'Nenhum gasto registrado',
-    text: (monthLabel) => `Os gastos de ${monthLabel} aparecerão aqui.`,
-  },
 }
 
 export function DashboardShell() {
@@ -49,7 +46,8 @@ function DashboardShellContent() {
   function renderMain() {
     if (activeMenu === 'renda') return <IncomeTable />
     if (activeMenu === 'dividas') return <DebtsTable />
-    if (activeMenu === 'pagamentos-mes') return <PaymentsList />
+    if (activeMenu === 'gasto-mes') return <GastoMesPage />
+    if (activeMenu === 'pagamentos-mes') return <PaymentsTable />
     if (activeMenu === 'configuracoes') return <SettingsPage />
 
     const section = SECTION_TEXT[activeMenu]

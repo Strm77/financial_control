@@ -43,13 +43,10 @@ function computePaymentStatus(payments: Payment[], year: number, month: number):
   const monthPayments = paymentsDueInMonth(payments, year, month)
   if (monthPayments.length === 0) return 'green'
 
-  const today = new Date()
-  const hasOverdue = monthPayments.some(
-    (payment) => !payment.paid && new Date(`${payment.dueDate}T00:00:00`) < today,
-  )
+  const hasOverdue = monthPayments.some((payment) => payment.status === 'atrasado')
   if (hasOverdue) return 'red'
 
-  const hasPending = monthPayments.some((payment) => !payment.paid)
+  const hasPending = monthPayments.some((payment) => payment.status === 'pendente' || payment.status === 'parcial')
   return hasPending ? 'yellow' : 'green'
 }
 

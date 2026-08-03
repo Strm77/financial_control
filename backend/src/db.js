@@ -14,6 +14,8 @@ if (!fs.existsSync(DATA_DIR)) {
 
 export const db = new DatabaseSync(DB_PATH);
 
+db.exec('PRAGMA foreign_keys = ON;');
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,10 +35,25 @@ db.exec(`
 
   CREATE TABLE IF NOT EXISTS payments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    description TEXT NOT NULL,
-    amount_cents INTEGER NOT NULL,
+    descricao TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    categoria TEXT NOT NULL,
+    valor_cents INTEGER NOT NULL,
+    valor_pago_cents INTEGER NOT NULL DEFAULT 0,
+    desconto_cents INTEGER NOT NULL DEFAULT 0,
     due_date TEXT NOT NULL,
-    paid INTEGER NOT NULL DEFAULT 0,
+    payment_date TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS card_expenses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    payment_id INTEGER NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
+    descricao TEXT NOT NULL,
+    valor_cents INTEGER NOT NULL,
+    parcela_atual INTEGER,
+    numero_parcelas INTEGER,
+    data TEXT,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 
@@ -67,6 +84,7 @@ db.exec(`
     parcela_atual INTEGER NOT NULL,
     juros_percent REAL,
     due_date TEXT NOT NULL,
+    recorrente INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 `);
@@ -88,6 +106,7 @@ function seedDemoPayments() {
   const month = now.getMonth();
   const pastDay = Math.max(1, now.getDate() - 1);
   const futureDay = Math.min(28, now.getDate() + 5);
+  const today = `${year}-${String(month + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   const monthDate = (monthOffset, day) => {
     const date = new Date(year, month + monthOffset, day);
@@ -98,18 +117,73 @@ function seedDemoPayments() {
   };
 
   const demoPayments = [
-    { description: 'Aluguel', amount_cents: 180000, due_date: monthDate(0, pastDay), paid: 0 },
-    { description: 'Internet', amount_cents: 12000, due_date: monthDate(0, futureDay), paid: 0 },
-    { description: 'Água e luz', amount_cents: 22000, due_date: monthDate(0, Math.min(28, pastDay)), paid: 1 },
-    { description: 'Fatura do cartão', amount_cents: 45000, due_date: monthDate(1, 10), paid: 0 },
-    { description: 'Financiamento do carro', amount_cents: 98000, due_date: monthDate(2, 5), paid: 1 },
+    {
+      descricao: 'Aluguel',
+      tipo: 'Fixo',
+      categoria: 'Conta',
+      valor_cents: 180000,
+      valor_pago_cents: 0,
+      desconto_cents: 0,
+      due_date: monthDate(0, pastDay),
+      payment_date: null,
+    },
+    {
+      descricao: 'Água e luz',
+      tipo: 'Fixo',
+      categoria: 'Conta',
+      valor_cents: 22000,
+      valor_pago_cents: 22000,
+      desconto_cents: 0,
+      due_date: monthDate(0, Math.min(28, pastDay)),
+      payment_date: today,
+    },
+    {
+      descricao: 'Internet',
+      tipo: 'Fixo',
+      categoria: 'Assinatura',
+      valor_cents: 12000,
+      valor_pago_cents: 0,
+      desconto_cents: 0,
+      due_date: monthDate(0, futureDay),
+      payment_date: null,
+    },
+    {
+      descricao: 'Nubank',
+      tipo: 'Variável',
+      categoria: 'Cartão',
+      valor_cents: 45000,
+      valor_pago_cents: 0,
+      desconto_cents: 0,
+      due_date: monthDate(1, 10),
+      payment_date: null,
+    },
+    {
+      descricao: 'Riachuelo',
+      tipo: 'Variável',
+      categoria: 'Cartão de Loja',
+      valor_cents: 18000,
+      valor_pago_cents: 18000,
+      desconto_cents: 0,
+      due_date: monthDate(2, 5),
+      payment_date: today,
+    },
   ];
 
   const insert = db.prepare(
-    'INSERT INTO payments (description, amount_cents, due_date, paid) VALUES (?, ?, ?, ?)'
+    `INSERT INTO payments (descricao, tipo, categoria, valor_cents, valor_pago_cents, desconto_cents, due_date, payment_date)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
   );
   for (const payment of demoPayments) {
-    insert.run(payment.description, payment.amount_cents, payment.due_date, payment.paid);
+    insert.run(
+      payment.descricao,
+      payment.tipo,
+      payment.categoria,
+      payment.valor_cents,
+      payment.valor_pago_cents,
+      payment.desconto_cents,
+      payment.due_date,
+      payment.payment_date
+    );
   }
 }
 

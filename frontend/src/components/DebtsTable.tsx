@@ -4,7 +4,7 @@ import { useMonth } from '../context/MonthContext'
 import { createDebt, deleteDebt, fetchDebts, updateDebt, type Debt } from '../api/debtsApi'
 import { ApiError } from '../api/authApi'
 import { IconEdit, IconTrash } from './icons'
-import { formatCurrency, formatDate } from '../utils/format'
+import { addMonthsToDate, formatCurrency, formatDate, yearMonthIndex } from '../utils/format'
 import './DebtsTable.css'
 
 const EMPTY_FORM = {
@@ -15,6 +15,7 @@ const EMPTY_FORM = {
   parcelaAtual: '',
   juros: '',
   dueDate: '',
+  recorrente: false,
 }
 
 function toCents(value: string): number {
@@ -53,6 +54,7 @@ export function DebtsTable() {
       parcelaAtual: String(debt.parcelaAtual),
       juros: debt.jurosPercent !== null ? String(debt.jurosPercent) : '',
       dueDate: debt.dueDate,
+      recorrente: debt.recorrente,
     })
   }
 
@@ -65,9 +67,14 @@ export function DebtsTable() {
   const previewValorContratado = toCents(form.valorContratado || '0')
   const previewValorParcela = toCents(form.valorParcela || '0')
   const previewParcelaAtual = Number(form.parcelaAtual || '0')
+  const previewNumeroParcelas = Number(form.numeroParcelas || '0')
   const previewValorPago = previewParcelaAtual * previewValorParcela
   const previewFaltaPagar = Math.max(0, previewValorContratado - previewValorPago)
   const showPreview = form.valorContratado !== '' && form.valorParcela !== '' && form.parcelaAtual !== ''
+  const previewDataFinal =
+    form.dueDate && previewNumeroParcelas > 0
+      ? addMonthsToDate(form.dueDate, Math.max(0, previewNumeroParcelas - previewParcelaAtual - 1))
+      : null
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -106,6 +113,7 @@ export function DebtsTable() {
         parcelaAtual,
         jurosPercent,
         dueDate: form.dueDate,
+        recorrente: form.recorrente,
       }
 
       if (editingId !== null) {
@@ -131,11 +139,26 @@ export function DebtsTable() {
     await deleteDebt(token!, id)
   }
 
-  const filtered = debts.filter((debt) => {
-    if (selectedMonth === 'all') return true
-    const due = new Date(`${debt.dueDate}T00:00:00`)
-    return due.getFullYear() === year && due.getMonth() + 1 === selectedMonth
-  })
+  const selectedIndex = selectedMonth === 'all' ? null : year * 12 + (selectedMonth - 1)
+
+  const visibleDebts = debts
+    .map((debt) => {
+      if (selectedIndex === null) {
+        return { debt, projectedDueDate: debt.dueDate, visible: true }
+      }
+
+      const startIndex = yearMonthIndex(debt.dueDate)
+
+      if (!debt.recorrente) {
+        return { debt, projectedDueDate: debt.dueDate, visible: selectedIndex === startIndex }
+      }
+
+      const endIndex = yearMonthIndex(debt.dataFinal)
+      const visible = selectedIndex >= startIndex && selectedIndex <= endIndex
+      const projectedDueDate = visible ? addMonthsToDate(debt.dueDate, selectedIndex - startIndex) : debt.dueDate
+      return { debt, projectedDueDate, visible }
+    })
+    .filter((entry) => entry.visible)
 
   return (
     <div className="debts-section">
@@ -230,14 +253,33 @@ export function DebtsTable() {
           </label>
         </div>
 
-        {showPreview && (
+        <label className="debts-form__checkbox">
+          <input
+            type="checkbox"
+            checked={form.recorrente}
+            onChange={(event) => setForm((prev) => ({ ...prev, recorrente: event.target.checked }))}
+            disabled={isSubmitting}
+          />
+          <span>Dívida recorrente — mostrar automaticamente nos próximos meses até a última parcela</span>
+        </label>
+
+        {(showPreview || previewDataFinal) && (
           <div className="debts-form__preview">
-            <span>
-              Valor pago: <strong className="mono">{formatCurrency(previewValorPago)}</strong>
-            </span>
-            <span>
-              Falta pagar: <strong className="mono">{formatCurrency(previewFaltaPagar)}</strong>
-            </span>
+            {showPreview && (
+              <>
+                <span>
+                  Valor pago: <strong className="mono">{formatCurrency(previewValorPago)}</strong>
+                </span>
+                <span>
+                  Falta pagar: <strong className="mono">{formatCurrency(previewFaltaPagar)}</strong>
+                </span>
+              </>
+            )}
+            {previewDataFinal && (
+              <span>
+                Data final: <strong className="mono">{formatDate(previewDataFinal)}</strong>
+              </span>
+            )}
           </div>
         )}
 
@@ -259,7 +301,7 @@ export function DebtsTable() {
         </div>
       </form>
 
-      {filtered.length === 0 ? (
+      {visibleDebts.length === 0 ? (
         <div className="neo-panel dashboard-placeholder">
           <p className="dashboard-placeholder__title">Nenhuma dívida cadastrada</p>
           <p className="dashboard-placeholder__text">Não há dívidas com vencimento em {monthLabel}.</p>
@@ -278,15 +320,19 @@ export function DebtsTable() {
                   <th>Falta pagar</th>
                   <th>Juros</th>
                   <th>Vencimento</th>
+                  <th>Data final</th>
                   <th aria-label="Ações" />
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((debt) => {
+                {visibleDebts.map(({ debt, projectedDueDate }) => {
                   const progress = debt.numeroParcelas > 0 ? (debt.parcelaAtual / debt.numeroParcelas) * 100 : 0
                   return (
                     <tr key={debt.id} className={debt.id === editingId ? 'debts-table__row--editing' : undefined}>
-                      <td>{debt.credor}</td>
+                      <td>
+                        {debt.credor}
+                        {debt.recorrente && <span className="debts-recurring-tag">↻ Recorrente</span>}
+                      </td>
                       <td className="debts-table__amount">{formatCurrency(debt.valorContratadoCents)}</td>
                       <td className="debts-table__amount">{formatCurrency(debt.valorParcelaCents)}</td>
                       <td>
@@ -302,7 +348,8 @@ export function DebtsTable() {
                       <td className="debts-table__amount debts-table__amount--paid">{formatCurrency(debt.valorPagoCents)}</td>
                       <td className="debts-table__amount debts-table__amount--due">{formatCurrency(debt.faltaPagarCents)}</td>
                       <td>{debt.jurosPercent !== null ? `${debt.jurosPercent}%` : '—'}</td>
-                      <td>{formatDate(debt.dueDate)}</td>
+                      <td>{formatDate(projectedDueDate)}</td>
+                      <td>{formatDate(debt.dataFinal)}</td>
                       <td>
                         <div className="debts-table__actions">
                           <button
