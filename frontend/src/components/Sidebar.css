@@ -100,6 +100,21 @@
   white-space: nowrap;
 }
 
+.sidebar__footer {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar__divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 10px;
+}
+
 @media (max-width: 760px) {
   .sidebar {
     width: 100%;
@@ -108,6 +123,18 @@
     gap: 12px;
     padding: 14px 16px;
     overflow-x: auto;
+  }
+
+  .sidebar__footer {
+    margin-top: 0;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .sidebar__divider {
+    width: 1px;
+    height: 22px;
+    margin: 0 4px;
   }
 
   .sidebar__brand {

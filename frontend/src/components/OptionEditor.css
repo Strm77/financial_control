@@ -1,0 +1,113 @@
+.option-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.option-editor__title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.option-editor__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.option-editor__empty {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.option-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px 5px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.option-chip__remove {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.option-chip__remove:hover {
+  background: rgba(255, 138, 138, 0.18);
+  color: var(--danger);
+}
+
+.option-editor__form {
+  display: flex;
+  gap: 8px;
+}
+
+.option-editor__form input {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.option-editor__form input:focus {
+  border-color: rgba(124, 156, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.16);
+}
+
+.option-editor__form button {
+  flex-shrink: 0;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.option-editor__form button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.option-editor__form button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.option-editor__error {
+  font-size: 12px;
+  color: var(--danger);
+  margin: 0;
+}

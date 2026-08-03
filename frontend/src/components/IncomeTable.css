@@ -1,0 +1,177 @@
+.income-section {
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.income-form {
+  position: relative;
+  z-index: 1;
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.income-form__fields {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.income-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.income-form__field select,
+.income-form__field input {
+  padding: 11px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.income-form__field select:focus,
+.income-form__field input:focus {
+  border-color: rgba(124, 156, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgba(124, 156, 255, 0.18);
+}
+
+.income-form__field select option {
+  background: #0b0f1f;
+  color: var(--text-primary);
+}
+
+.income-form__error {
+  position: relative;
+  z-index: 1;
+  font-size: 13px;
+  color: var(--danger);
+  background: rgba(255, 138, 138, 0.12);
+  border: 1px solid rgba(255, 138, 138, 0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.income-form__submit {
+  position: relative;
+  z-index: 1;
+  align-self: flex-start;
+  padding: 11px 22px;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #06110c;
+  cursor: pointer;
+  background: linear-gradient(120deg, var(--accent-emerald), var(--accent-cyan) 60%, var(--accent-indigo));
+  box-shadow: 0 8px 22px rgba(95, 227, 161, 0.25);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.income-form__submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(95, 227, 161, 0.32);
+}
+
+.income-form__submit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.income-table-card {
+  padding: 8px;
+}
+
+.income-table-scroll {
+  position: relative;
+  z-index: 1;
+  overflow-x: auto;
+}
+
+.income-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.income-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 12px 16px;
+  white-space: nowrap;
+}
+
+.income-table td {
+  padding: 14px 16px;
+  color: var(--text-primary);
+  white-space: nowrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.income-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.income-table__amount {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.income-tag {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--accent-cyan);
+  background: rgba(99, 230, 226, 0.14);
+}
+
+.income-table__delete {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.income-table__delete:hover {
+  background: rgba(255, 138, 138, 0.14);
+  color: var(--danger);
+}
+
+@media (max-width: 620px) {
+  .income-form__fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}

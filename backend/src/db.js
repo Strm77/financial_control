@@ -39,6 +39,24 @@ db.exec(`
     paid INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS select_options (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    section TEXT NOT NULL,
+    field TEXT NOT NULL,
+    label TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+
+  CREATE TABLE IF NOT EXISTS incomes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fonte TEXT NOT NULL,
+    categoria TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    amount_cents INTEGER NOT NULL,
+    received_date TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 function seedDefaultUser() {
@@ -83,8 +101,29 @@ function seedDemoPayments() {
   }
 }
 
+function seedIncomeOptions() {
+  const { count } = db
+    .prepare("SELECT COUNT(*) AS count FROM select_options WHERE section = 'renda'")
+    .get();
+  if (count > 0) return;
+
+  const defaults = {
+    fonte: ['Salário', 'Freelance', 'Aluguel Recebido', 'Investimentos', 'Outros'],
+    categoria: ['Fixa', 'Variável', 'Extra'],
+    tipo: ['Recorrente', 'Pontual'],
+  };
+
+  const insert = db.prepare('INSERT INTO select_options (section, field, label) VALUES (?, ?, ?)');
+  for (const [field, labels] of Object.entries(defaults)) {
+    for (const label of labels) {
+      insert.run('renda', field, label);
+    }
+  }
+}
+
 seedDefaultUser();
 seedDemoPayments();
+seedIncomeOptions();
 
 export function logActivity(userId, event, details) {
   db.prepare('INSERT INTO activity_log (user_id, event, details) VALUES (?, ?, ?)').run(

@@ -3,9 +3,11 @@ import { LiquidBackground } from '../components/LiquidBackground'
 import { Sidebar, type MenuItem } from '../components/Sidebar'
 import { MonthSelector } from '../components/MonthSelector'
 import { PaymentsList } from '../components/PaymentsList'
-import { IconDashboard, IconDebt, IconExpense, IconIncome, IconPayments } from '../components/icons'
+import { IncomeTable } from '../components/IncomeTable'
+import { IconDashboard, IconDebt, IconExpense, IconIncome, IconPayments, IconSettings } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { MonthProvider, useMonth } from '../context/MonthContext'
+import { SettingsPage } from './SettingsPage'
 import './DashboardShell.css'
 
 const MENU_ITEMS: MenuItem[] = [
@@ -16,14 +18,12 @@ const MENU_ITEMS: MenuItem[] = [
   { id: 'pagamentos-mes', label: 'Pagamentos Mês', icon: <IconPayments /> },
 ]
 
+const FOOTER_ITEMS: MenuItem[] = [{ id: 'configuracoes', label: 'Configurações', icon: <IconSettings /> }]
+
 const SECTION_TEXT: Record<string, { title: string; text: (monthLabel: string) => string }> = {
   dashboard: {
     title: 'Nenhuma funcionalidade habilitada ainda',
     text: (monthLabel) => `Um resumo geral das suas finanças em ${monthLabel} aparecerá aqui.`,
-  },
-  renda: {
-    title: 'Nenhuma renda cadastrada',
-    text: (monthLabel) => `Os lançamentos de renda de ${monthLabel} aparecerão aqui.`,
   },
   'gasto-mes': {
     title: 'Nenhum gasto registrado',
@@ -48,7 +48,21 @@ function DashboardShellContent() {
   const { monthLabel } = useMonth()
   const [activeMenu, setActiveMenu] = useState(MENU_ITEMS[0].id)
 
-  const activeItem = MENU_ITEMS.find((item) => item.id === activeMenu) ?? MENU_ITEMS[0]
+  const activeItem = [...MENU_ITEMS, ...FOOTER_ITEMS].find((item) => item.id === activeMenu) ?? MENU_ITEMS[0]
+
+  function renderMain() {
+    if (activeMenu === 'renda') return <IncomeTable />
+    if (activeMenu === 'pagamentos-mes') return <PaymentsList />
+    if (activeMenu === 'configuracoes') return <SettingsPage />
+
+    const section = SECTION_TEXT[activeMenu]
+    return (
+      <div className="liquid-glass dashboard-placeholder">
+        <p className="dashboard-placeholder__title">{section.title}</p>
+        <p className="dashboard-placeholder__text">{section.text(monthLabel)}</p>
+      </div>
+    )
+  }
 
   return (
     <div className="page-shell">
@@ -57,7 +71,7 @@ function DashboardShellContent() {
       <MonthSelector />
 
       <div className="app-shell">
-        <Sidebar items={MENU_ITEMS} activeId={activeMenu} onSelect={setActiveMenu} />
+        <Sidebar items={MENU_ITEMS} footerItems={FOOTER_ITEMS} activeId={activeMenu} onSelect={setActiveMenu} />
 
         <div className="app-content">
           <header className="liquid-glass app-topbar">
@@ -70,16 +84,7 @@ function DashboardShellContent() {
             </button>
           </header>
 
-          <main className="app-main">
-            {activeMenu === 'pagamentos-mes' ? (
-              <PaymentsList />
-            ) : (
-              <div className="liquid-glass dashboard-placeholder">
-                <p className="dashboard-placeholder__title">{SECTION_TEXT[activeMenu].title}</p>
-                <p className="dashboard-placeholder__text">{SECTION_TEXT[activeMenu].text(monthLabel)}</p>
-              </div>
-            )}
-          </main>
+          <main className="app-main">{renderMain()}</main>
         </div>
       </div>
     </div>
