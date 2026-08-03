@@ -44,6 +44,21 @@ export async function createIncome(token: string, income: NewIncome): Promise<In
   return data.income
 }
 
+export async function updateIncome(token: string, id: number, income: NewIncome): Promise<Income> {
+  const response = await fetch(`/api/incomes/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(income),
+  })
+
+  if (!response.ok) {
+    await parseError(response)
+  }
+
+  const data = (await response.json()) as { income: Income }
+  return data.income
+}
+
 export async function deleteIncome(token: string, id: number): Promise<void> {
   const response = await fetch(`/api/incomes/${id}`, {
     method: 'DELETE',

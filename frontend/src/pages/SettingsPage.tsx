@@ -14,7 +14,7 @@ function IncomeSettingsPanel() {
   const { byField, addOption, removeOption } = useSelectOptions('renda')
 
   return (
-    <div className="liquid-glass settings-card">
+    <div className="neo-panel settings-card">
       <p className="settings-card__intro">
         Gerencie as opções disponíveis nos campos de seleção do menu Renda. Elas aparecem na hora de cadastrar uma
         nova renda.
@@ -40,7 +40,7 @@ export function SettingsPage() {
 
   return (
     <div className="settings-page">
-      <div className="liquid-glass settings-tabs">
+      <div className="neo-panel settings-tabs">
         {SETTINGS_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -56,7 +56,7 @@ export function SettingsPage() {
       {activeTab === 'renda' ? (
         <IncomeSettingsPanel />
       ) : (
-        <div className="liquid-glass dashboard-placeholder">
+        <div className="neo-panel dashboard-placeholder">
           <p className="dashboard-placeholder__title">Configurações indisponíveis</p>
           <p className="dashboard-placeholder__text">As configurações de {activeLabel} ainda não estão disponíveis.</p>
         </div>

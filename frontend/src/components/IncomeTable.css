@@ -7,17 +7,26 @@
 }
 
 .income-form {
-  position: relative;
-  z-index: 1;
   padding: 24px 26px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
+.income-form__editing {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink);
+  background: var(--brand);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  padding: 3px 9px;
+}
+
 .income-form__fields {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
@@ -27,70 +36,81 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
   color: var(--text-secondary);
+  min-width: 0;
 }
 
 .income-form__field select,
 .income-form__field input {
-  padding: 11px 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--text-primary);
+  padding: 10px 12px;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
   font-size: 14px;
+  font-weight: 500;
   outline: none;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
 .income-form__field select:focus,
 .income-form__field input:focus {
-  border-color: rgba(124, 156, 255, 0.7);
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 0 4px rgba(124, 156, 255, 0.18);
+  box-shadow: 3px 3px 0 0 var(--ink);
+  transform: translate(-1px, -1px);
 }
 
 .income-form__field select option {
-  background: #0b0f1f;
-  color: var(--text-primary);
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .income-form__error {
-  position: relative;
-  z-index: 1;
   font-size: 13px;
-  color: var(--danger);
-  background: rgba(255, 138, 138, 0.12);
-  border: 1px solid rgba(255, 138, 138, 0.3);
-  border-radius: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--accent-red);
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius);
   padding: 10px 14px;
   margin: 0;
 }
 
+.income-form__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .income-form__submit {
-  position: relative;
-  z-index: 1;
   align-self: flex-start;
   padding: 11px 22px;
-  border: none;
-  border-radius: 12px;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius);
   font-size: 14px;
-  font-weight: 600;
-  color: #06110c;
+  font-weight: 700;
+  color: var(--ink);
   cursor: pointer;
-  background: linear-gradient(120deg, var(--accent-emerald), var(--accent-cyan) 60%, var(--accent-indigo));
-  box-shadow: 0 8px 22px rgba(95, 227, 161, 0.25);
+  background: var(--accent-green);
+  box-shadow: 4px 4px 0 0 var(--ink);
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 }
 
 .income-form__submit:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(95, 227, 161, 0.32);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 0 var(--ink);
+}
+
+.income-form__submit:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 0 var(--ink);
 }
 
 .income-form__submit:disabled {
@@ -98,13 +118,27 @@
   cursor: progress;
 }
 
+.income-form__cancel {
+  padding: 11px 18px;
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  background: var(--paper);
+}
+
+.income-form__cancel:hover:not(:disabled) {
+  background: var(--paper-alt);
+}
+
 .income-table-card {
-  padding: 8px;
+  padding: 0;
+  overflow: hidden;
 }
 
 .income-table-scroll {
-  position: relative;
-  z-index: 1;
   overflow-x: auto;
 }
 
@@ -117,57 +151,78 @@
 .income-table th {
   text-align: left;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--paper);
+  background: var(--ink);
   padding: 12px 16px;
   white-space: nowrap;
 }
 
 .income-table td {
   padding: 14px 16px;
-  color: var(--text-primary);
+  color: var(--ink);
   white-space: nowrap;
-  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: var(--border-w) solid var(--ink);
+}
+
+.income-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .income-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--paper-alt);
+}
+
+.income-table__row--editing td {
+  background: color-mix(in srgb, var(--brand) 30%, var(--paper));
 }
 
 .income-table__amount {
-  font-weight: 600;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .income-tag {
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   padding: 3px 10px;
-  border-radius: 999px;
-  color: var(--accent-cyan);
-  background: rgba(99, 230, 226, 0.14);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  color: var(--ink);
+  background: var(--accent-blue);
 }
 
-.income-table__delete {
+.income-table__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.income-table__icon-btn {
   display: grid;
   place-items: center;
   width: 30px;
   height: 30px;
-  border: none;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--text-muted);
+  border: 1.5px solid var(--ink);
+  border-radius: var(--radius);
+  background: var(--paper);
+  color: var(--ink);
   cursor: pointer;
   transition:
     background 0.15s ease,
-    color 0.15s ease;
+    transform 0.1s ease;
 }
 
-.income-table__delete:hover {
-  background: rgba(255, 138, 138, 0.14);
-  color: var(--danger);
+.income-table__icon-btn:hover {
+  background: var(--brand);
+  transform: translate(-1px, -1px);
+}
+
+.income-table__icon-btn--danger:hover {
+  background: var(--accent-red);
 }
 
 @media (max-width: 620px) {

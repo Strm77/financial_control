@@ -92,3 +92,12 @@ export function IconTrash(props: SVGProps<SVGSVGElement>) {
     </IconBase>
   )
 }
+
+export function IconEdit(props: SVGProps<SVGSVGElement>) {
+  return (
+    <IconBase {...props}>
+      <path d="M15.5 4.5l4 4L8 20H4v-4z" />
+      <path d="M13.5 6.5l4 4" />
+    </IconBase>
+  )
+}

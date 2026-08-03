@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { LiquidBackground } from '../components/LiquidBackground'
 import { Sidebar, type MenuItem } from '../components/Sidebar'
 import { MonthSelector } from '../components/MonthSelector'
 import { PaymentsList } from '../components/PaymentsList'
@@ -57,7 +56,7 @@ function DashboardShellContent() {
 
     const section = SECTION_TEXT[activeMenu]
     return (
-      <div className="liquid-glass dashboard-placeholder">
+      <div className="neo-panel dashboard-placeholder">
         <p className="dashboard-placeholder__title">{section.title}</p>
         <p className="dashboard-placeholder__text">{section.text(monthLabel)}</p>
       </div>
@@ -66,15 +65,13 @@ function DashboardShellContent() {
 
   return (
     <div className="page-shell">
-      <LiquidBackground />
-
       <MonthSelector />
 
       <div className="app-shell">
         <Sidebar items={MENU_ITEMS} footerItems={FOOTER_ITEMS} activeId={activeMenu} onSelect={setActiveMenu} />
 
         <div className="app-content">
-          <header className="liquid-glass app-topbar">
+          <header className="neo-panel app-topbar">
             <div>
               <span className="app-topbar__eyebrow">Olá, {user?.username}</span>
               <h1>{activeItem.label}</h1>

@@ -5,21 +5,19 @@
 }
 
 .month-selector__scroll {
-  position: relative;
-  z-index: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
   scrollbar-width: thin;
-  padding-bottom: 2px;
+  padding: 2px;
 }
 
 .month-selector__divider {
   flex-shrink: 0;
-  width: 1px;
-  height: 22px;
-  background: rgba(255, 255, 255, 0.16);
+  width: var(--border-w);
+  height: 24px;
+  background: var(--ink);
   margin: 0 4px;
 }
 
@@ -29,50 +27,49 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: var(--border-w) solid var(--ink);
+  background: var(--paper);
+  color: var(--ink-soft);
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   transition:
-    background 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    transform 0.15s ease;
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
 }
 
 .month-pill:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text-primary);
+  background: var(--paper-alt);
+  color: var(--ink);
 }
 
 .month-pill--selected {
-  color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
-  transform: translateY(-1px);
+  color: var(--ink);
+  background: var(--paper-alt);
+  box-shadow: 3px 3px 0 0 var(--ink);
+  transform: translate(-1px, -1px);
 }
 
 .month-pill--all {
-  font-weight: 600;
-  color: var(--text-primary);
-  background: linear-gradient(120deg, rgba(124, 156, 255, 0.24), rgba(99, 230, 226, 0.14));
-  border-color: rgba(124, 156, 255, 0.4);
+  font-weight: 700;
+  color: var(--ink);
+  background: var(--brand);
 }
 
 .month-pill--all.month-pill--selected {
-  box-shadow: 0 0 0 3px rgba(124, 156, 255, 0.24);
+  box-shadow: 3px 3px 0 0 var(--ink);
 }
 
 .month-pill__dot {
-  width: 7px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
+  border: 1.5px solid var(--ink);
   flex-shrink: 0;
 }
 
@@ -80,21 +77,18 @@
   background: var(--status-gray);
 }
 
+.month-pill--gray {
+  color: var(--muted);
+}
+
 .month-pill--red .month-pill__dot {
-  background: var(--danger);
-  box-shadow: 0 0 8px rgba(255, 138, 138, 0.6);
+  background: var(--accent-red);
 }
 
 .month-pill--yellow .month-pill__dot {
   background: var(--accent-amber);
-  box-shadow: 0 0 8px rgba(255, 207, 92, 0.6);
 }
 
 .month-pill--green .month-pill__dot {
-  background: var(--accent-emerald);
-  box-shadow: 0 0 8px rgba(95, 227, 161, 0.6);
-}
-
-.month-pill--gray {
-  color: var(--text-muted);
+  background: var(--accent-green);
 }

@@ -12,7 +12,7 @@ export function MonthSelector() {
   const { year, selectedMonth, setSelectedMonth, getMonthStatus } = useMonth()
 
   return (
-    <div className="liquid-glass month-selector" aria-label="Seletor de mês">
+    <div className="neo-panel month-selector" aria-label="Seletor de mês">
       <div className="month-selector__scroll">
         <button
           type="button"

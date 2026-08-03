@@ -15,7 +15,7 @@ export function PaymentsList() {
 
   if (filtered.length === 0) {
     return (
-      <div className="liquid-glass dashboard-placeholder">
+      <div className="neo-panel dashboard-placeholder">
         <p className="dashboard-placeholder__title">Nenhum pagamento agendado</p>
         <p className="dashboard-placeholder__text">Não há pagamentos cadastrados para {monthLabel}.</p>
       </div>
@@ -23,7 +23,7 @@ export function PaymentsList() {
   }
 
   return (
-    <div className="liquid-glass payments-list">
+    <div className="neo-panel payments-list">
       {filtered.map((payment) => {
         const overdue = isOverdue(payment.dueDate, payment.paid)
         const state = payment.paid ? 'paid' : overdue ? 'overdue' : 'pending'

@@ -35,7 +35,7 @@ function renderItems(items: MenuItem[], activeId: string, onSelect: (id: string)
 
 export function Sidebar({ items, footerItems, activeId, onSelect }: SidebarProps) {
   return (
-    <nav className="liquid-glass sidebar" aria-label="Navegação principal">
+    <nav className="neo-panel sidebar" aria-label="Navegação principal">
       <div className="sidebar__brand">
         <span className="sidebar__mark">FC</span>
         <span className="sidebar__brand-name">Financial Control</span>

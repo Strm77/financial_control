@@ -54,6 +54,54 @@ incomesRouter.post('/', requireAuth, (req, res) => {
   });
 });
 
+incomesRouter.patch('/:id', requireAuth, (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    return res.status(400).json({ message: 'Identificador inválido.' });
+  }
+
+  const existing = db.prepare('SELECT * FROM incomes WHERE id = ?').get(id);
+  if (!existing) {
+    return res.status(404).json({ message: 'Renda não encontrada.' });
+  }
+
+  const { fonte, categoria, tipo, amountCents } = req.body ?? {};
+  const isValidText = (value) => typeof value === 'string' && value.trim().length > 0;
+
+  if (
+    !isValidText(fonte) ||
+    !isValidText(categoria) ||
+    !isValidText(tipo) ||
+    typeof amountCents !== 'number' ||
+    !Number.isFinite(amountCents) ||
+    amountCents <= 0
+  ) {
+    return res.status(400).json({ message: 'Preencha fonte, categoria, tipo e um valor válido.' });
+  }
+
+  // A data de recebimento não muda ao editar: continua sendo a data em que o lançamento foi criado.
+  const roundedAmount = Math.round(amountCents);
+
+  db.prepare('UPDATE incomes SET fonte = ?, categoria = ?, tipo = ?, amount_cents = ? WHERE id = ?').run(
+    fonte.trim(),
+    categoria.trim(),
+    tipo.trim(),
+    roundedAmount,
+    id
+  );
+
+  res.json({
+    income: {
+      id,
+      fonte: fonte.trim(),
+      categoria: categoria.trim(),
+      tipo: tipo.trim(),
+      amountCents: roundedAmount,
+      receivedDate: existing.received_date,
+    },
+  });
+});
+
 incomesRouter.delete('/:id', requireAuth, (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {

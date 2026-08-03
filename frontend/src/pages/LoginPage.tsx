@@ -1,5 +1,4 @@
 import { useState, type FormEvent } from 'react'
-import { LiquidBackground } from '../components/LiquidBackground'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../api/authApi'
 import './LoginPage.css'
@@ -32,10 +31,8 @@ export function LoginPage() {
 
   return (
     <div className="login-screen">
-      <LiquidBackground />
-
       <main className="login-stage">
-        <form className="liquid-glass login-card" onSubmit={handleSubmit} noValidate>
+        <form className="neo-panel login-card" onSubmit={handleSubmit} noValidate>
           <div className="login-card__content">
             <div className="login-brand">
               <span className="login-brand__mark">FC</span>
