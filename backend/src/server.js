@@ -5,6 +5,7 @@ import { authRouter } from './routes/auth.js';
 import { paymentsRouter } from './routes/payments.js';
 import { settingsRouter } from './routes/settings.js';
 import { incomesRouter } from './routes/incomes.js';
+import { debtsRouter } from './routes/debts.js';
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -20,6 +21,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/incomes', incomesRouter);
+app.use('/api/debts', debtsRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Rota não encontrada.' });

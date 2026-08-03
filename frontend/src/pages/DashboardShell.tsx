@@ -3,6 +3,7 @@ import { Sidebar, type MenuItem } from '../components/Sidebar'
 import { MonthSelector } from '../components/MonthSelector'
 import { PaymentsList } from '../components/PaymentsList'
 import { IncomeTable } from '../components/IncomeTable'
+import { DebtsTable } from '../components/DebtsTable'
 import { IconDashboard, IconDebt, IconExpense, IconIncome, IconPayments, IconSettings } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { MonthProvider, useMonth } from '../context/MonthContext'
@@ -28,10 +29,6 @@ const SECTION_TEXT: Record<string, { title: string; text: (monthLabel: string) =
     title: 'Nenhum gasto registrado',
     text: (monthLabel) => `Os gastos de ${monthLabel} aparecerão aqui.`,
   },
-  dividas: {
-    title: 'Nenhuma dívida cadastrada',
-    text: (monthLabel) => `As dívidas com vencimento em ${monthLabel} aparecerão aqui.`,
-  },
 }
 
 export function DashboardShell() {
@@ -51,6 +48,7 @@ function DashboardShellContent() {
 
   function renderMain() {
     if (activeMenu === 'renda') return <IncomeTable />
+    if (activeMenu === 'dividas') return <DebtsTable />
     if (activeMenu === 'pagamentos-mes') return <PaymentsList />
     if (activeMenu === 'configuracoes') return <SettingsPage />
 

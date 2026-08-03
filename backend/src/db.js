@@ -57,6 +57,18 @@ db.exec(`
     received_date TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
+
+  CREATE TABLE IF NOT EXISTS debts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    credor TEXT NOT NULL,
+    valor_contratado_cents INTEGER NOT NULL,
+    valor_parcela_cents INTEGER NOT NULL,
+    numero_parcelas INTEGER NOT NULL,
+    parcela_atual INTEGER NOT NULL,
+    juros_percent REAL,
+    due_date TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 function seedDefaultUser() {
