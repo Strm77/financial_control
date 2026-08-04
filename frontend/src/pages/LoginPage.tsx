@@ -4,31 +4,73 @@ import { ApiError } from '../api/authApi'
 import { ThemeToggle } from '../components/ThemeToggle'
 import './LoginPage.css'
 
+type Mode = 'login' | 'register'
+
 export function LoginPage() {
-  const { login } = useAuth()
+  const { login, register } = useAuth()
+  const [mode, setMode] = useState<Mode>('login')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  function switchMode(nextMode: Mode) {
+    setMode(nextMode)
+    setError(null)
+    setPassword('')
+    setConfirmPassword('')
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
     setError(null)
 
-    if (!username.trim() || !password) {
-      setError('Preencha usuário e senha para continuar.')
+    if (mode === 'login') {
+      if (!username.trim() || !password) {
+        setError('Preencha usuário e senha para continuar.')
+        return
+      }
+
+      setIsSubmitting(true)
+      try {
+        await login(username, password)
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : 'Não foi possível conectar ao servidor.')
+      } finally {
+        setIsSubmitting(false)
+      }
+      return
+    }
+
+    if (!username.trim() || !password || !confirmPassword) {
+      setError('Preencha usuário, senha e confirmação de senha.')
+      return
+    }
+    if (username.trim().length < 3) {
+      setError('O usuário deve ter pelo menos 3 caracteres.')
+      return
+    }
+    if (password.length < 6) {
+      setError('A senha deve ter pelo menos 6 caracteres.')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('A confirmação de senha não confere.')
       return
     }
 
     setIsSubmitting(true)
     try {
-      await login(username, password)
+      await register(username, password, confirmPassword)
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Não foi possível conectar ao servidor.')
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  const isRegister = mode === 'register'
 
   return (
     <div className="login-screen">
@@ -42,7 +84,9 @@ export function LoginPage() {
               <span className="login-brand__mark">FC</span>
               <div>
                 <h1>Financial Control</h1>
-                <p className="login-subtitle">Acesse sua conta para continuar</p>
+                <p className="login-subtitle">
+                  {isRegister ? 'Crie sua conta para começar' : 'Acesse sua conta para continuar'}
+                </p>
               </div>
             </div>
 
@@ -65,13 +109,28 @@ export function LoginPage() {
               <input
                 type="password"
                 name="password"
-                autoComplete="current-password"
+                autoComplete={isRegister ? 'new-password' : 'current-password'}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Digite sua senha"
                 disabled={isSubmitting}
               />
             </label>
+
+            {isRegister && (
+              <label className="login-field">
+                <span>Confirmar senha</span>
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(event) => setConfirmPassword(event.target.value)}
+                  placeholder="Digite a senha novamente"
+                  disabled={isSubmitting}
+                />
+              </label>
+            )}
 
             {error && (
               <p className="login-error" role="alert">
@@ -80,7 +139,16 @@ export function LoginPage() {
             )}
 
             <button type="submit" className="login-button" disabled={isSubmitting}>
-              {isSubmitting ? 'Entrando…' : 'Entrar'}
+              {isSubmitting ? (isRegister ? 'Criando conta…' : 'Entrando…') : isRegister ? 'Criar conta' : 'Entrar'}
+            </button>
+
+            <button
+              type="button"
+              className="login-switch"
+              onClick={() => switchMode(isRegister ? 'login' : 'register')}
+              disabled={isSubmitting}
+            >
+              {isRegister ? 'Já tem conta? Entrar' : 'Não tem conta? Criar conta'}
             </button>
           </div>
         </form>

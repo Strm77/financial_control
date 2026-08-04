@@ -162,6 +162,29 @@
   cursor: progress;
 }
 
+.login-switch {
+  align-self: center;
+  margin-top: 2px;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.login-switch:hover:not(:disabled) {
+  color: var(--brand);
+}
+
+.login-switch:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 @media (max-width: 420px) {
   .login-card__content {
     padding: 30px 24px;

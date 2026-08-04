@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { fetchMe, login as loginRequest, type AuthUser } from '../api/authApi'
+import { fetchMe, login as loginRequest, register as registerRequest, type AuthUser } from '../api/authApi'
 
 const TOKEN_STORAGE_KEY = 'financial_control.token'
 
@@ -9,6 +9,7 @@ interface AuthContextValue {
   isAuthenticated: boolean
   isLoading: boolean
   login: (username: string, password: string) => Promise<void>
+  register: (username: string, password: string, confirmPassword: string) => Promise<void>
   logout: () => void
 }
 
@@ -55,6 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser)
   }, [])
 
+  const register = useCallback(async (username: string, password: string, confirmPassword: string) => {
+    const { token: newToken, user: newUser } = await registerRequest(username, password, confirmPassword)
+    localStorage.setItem(TOKEN_STORAGE_KEY, newToken)
+    setToken(newToken)
+    setUser(newUser)
+  }, [])
+
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_STORAGE_KEY)
     setToken(null)
@@ -62,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, token, isAuthenticated: Boolean(user), isLoading, login, logout }),
-    [user, token, isLoading, login, logout],
+    () => ({ user, token, isAuthenticated: Boolean(user), isLoading, login, register, logout }),
+    [user, token, isLoading, login, register, logout],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

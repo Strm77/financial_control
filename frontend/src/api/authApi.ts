@@ -39,6 +39,20 @@ export async function login(username: string, password: string): Promise<LoginRe
   return response.json() as Promise<LoginResponse>
 }
 
+export async function register(username: string, password: string, confirmPassword: string): Promise<LoginResponse> {
+  const response = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, confirmPassword }),
+  })
+
+  if (!response.ok) {
+    await parseError(response)
+  }
+
+  return response.json() as Promise<LoginResponse>
+}
+
 export async function fetchMe(token: string): Promise<{ user: AuthUser }> {
   const response = await fetch('/api/auth/me', {
     headers: { Authorization: `Bearer ${token}` },
