@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db } from '../db.js';
+import { pool } from '../db.js';
 import { requireAuth } from '../auth.js';
 
 export const debtsRouter = Router();
@@ -72,12 +72,12 @@ function validate(body) {
   return null;
 }
 
-debtsRouter.get('/', requireAuth, (_req, res) => {
-  const rows = db.prepare('SELECT * FROM debts ORDER BY due_date ASC').all();
+debtsRouter.get('/', requireAuth, async (_req, res) => {
+  const { rows } = await pool.query('SELECT * FROM debts ORDER BY due_date ASC');
   res.json({ debts: rows.map(toResponse) });
 });
 
-debtsRouter.post('/', requireAuth, (req, res) => {
+debtsRouter.post('/', requireAuth, async (req, res) => {
   const error = validate(req.body);
   if (error) {
     return res.status(400).json({ message: error });
@@ -86,12 +86,10 @@ debtsRouter.post('/', requireAuth, (req, res) => {
   const { credor, valorContratadoCents, valorParcelaCents, numeroParcelas, parcelaAtual, jurosPercent, dueDate, recorrente } =
     req.body;
 
-  const result = db
-    .prepare(
-      `INSERT INTO debts (credor, valor_contratado_cents, valor_parcela_cents, numero_parcelas, parcela_atual, juros_percent, due_date, recorrente)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    )
-    .run(
+  const { rows } = await pool.query(
+    `INSERT INTO debts (credor, valor_contratado_cents, valor_parcela_cents, numero_parcelas, parcela_atual, juros_percent, due_date, recorrente)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [
       credor.trim(),
       Math.round(valorContratadoCents),
       Math.round(valorParcelaCents),
@@ -99,21 +97,21 @@ debtsRouter.post('/', requireAuth, (req, res) => {
       parcelaAtual,
       jurosPercent ?? null,
       dueDate,
-      recorrente ? 1 : 0
-    );
+      Boolean(recorrente),
+    ]
+  );
 
-  const row = db.prepare('SELECT * FROM debts WHERE id = ?').get(Number(result.lastInsertRowid));
-  res.status(201).json({ debt: toResponse(row) });
+  res.status(201).json({ debt: toResponse(rows[0]) });
 });
 
-debtsRouter.patch('/:id', requireAuth, (req, res) => {
+debtsRouter.patch('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  const existing = db.prepare('SELECT id FROM debts WHERE id = ?').get(id);
-  if (!existing) {
+  const existingResult = await pool.query('SELECT id FROM debts WHERE id = $1', [id]);
+  if (existingResult.rows.length === 0) {
     return res.status(404).json({ message: 'Dívida não encontrada.' });
   }
 
@@ -125,31 +123,31 @@ debtsRouter.patch('/:id', requireAuth, (req, res) => {
   const { credor, valorContratadoCents, valorParcelaCents, numeroParcelas, parcelaAtual, jurosPercent, dueDate, recorrente } =
     req.body;
 
-  db.prepare(
-    `UPDATE debts SET credor = ?, valor_contratado_cents = ?, valor_parcela_cents = ?, numero_parcelas = ?,
-     parcela_atual = ?, juros_percent = ?, due_date = ?, recorrente = ? WHERE id = ?`
-  ).run(
-    credor.trim(),
-    Math.round(valorContratadoCents),
-    Math.round(valorParcelaCents),
-    numeroParcelas,
-    parcelaAtual,
-    jurosPercent ?? null,
-    dueDate,
-    recorrente ? 1 : 0,
-    id
+  const { rows } = await pool.query(
+    `UPDATE debts SET credor = $1, valor_contratado_cents = $2, valor_parcela_cents = $3, numero_parcelas = $4,
+     parcela_atual = $5, juros_percent = $6, due_date = $7, recorrente = $8 WHERE id = $9 RETURNING *`,
+    [
+      credor.trim(),
+      Math.round(valorContratadoCents),
+      Math.round(valorParcelaCents),
+      numeroParcelas,
+      parcelaAtual,
+      jurosPercent ?? null,
+      dueDate,
+      Boolean(recorrente),
+      id,
+    ]
   );
 
-  const row = db.prepare('SELECT * FROM debts WHERE id = ?').get(id);
-  res.json({ debt: toResponse(row) });
+  res.json({ debt: toResponse(rows[0]) });
 });
 
-debtsRouter.delete('/:id', requireAuth, (req, res) => {
+debtsRouter.delete('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  db.prepare('DELETE FROM debts WHERE id = ?').run(id);
+  await pool.query('DELETE FROM debts WHERE id = $1', [id]);
   res.status(204).send();
 });

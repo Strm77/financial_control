@@ -1,22 +1,20 @@
 import { Router } from 'express';
-import { db } from '../db.js';
+import { pool } from '../db.js';
 import { requireAuth } from '../auth.js';
 
 export const incomesRouter = Router();
 
-incomesRouter.get('/', requireAuth, (_req, res) => {
-  const rows = db
-    .prepare(
-      `SELECT id, fonte, categoria, tipo, amount_cents AS amountCents, received_date AS receivedDate
-       FROM incomes
-       ORDER BY received_date DESC, id DESC`
-    )
-    .all();
+incomesRouter.get('/', requireAuth, async (_req, res) => {
+  const { rows } = await pool.query(
+    `SELECT id, fonte, categoria, tipo, amount_cents AS "amountCents", received_date AS "receivedDate"
+     FROM incomes
+     ORDER BY received_date DESC, id DESC`
+  );
 
   res.json({ incomes: rows });
 });
 
-incomesRouter.post('/', requireAuth, (req, res) => {
+incomesRouter.post('/', requireAuth, async (req, res) => {
   const { fonte, categoria, tipo, amountCents } = req.body ?? {};
 
   const isValidText = (value) => typeof value === 'string' && value.trim().length > 0;
@@ -36,15 +34,15 @@ incomesRouter.post('/', requireAuth, (req, res) => {
   const receivedDate = new Date().toISOString().slice(0, 10);
   const roundedAmount = Math.round(amountCents);
 
-  const result = db
-    .prepare(
-      'INSERT INTO incomes (fonte, categoria, tipo, amount_cents, received_date) VALUES (?, ?, ?, ?, ?)'
-    )
-    .run(fonte.trim(), categoria.trim(), tipo.trim(), roundedAmount, receivedDate);
+  const { rows } = await pool.query(
+    `INSERT INTO incomes (fonte, categoria, tipo, amount_cents, received_date)
+     VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [fonte.trim(), categoria.trim(), tipo.trim(), roundedAmount, receivedDate]
+  );
 
   res.status(201).json({
     income: {
-      id: Number(result.lastInsertRowid),
+      id: rows[0].id,
       fonte: fonte.trim(),
       categoria: categoria.trim(),
       tipo: tipo.trim(),
@@ -54,13 +52,14 @@ incomesRouter.post('/', requireAuth, (req, res) => {
   });
 });
 
-incomesRouter.patch('/:id', requireAuth, (req, res) => {
+incomesRouter.patch('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  const existing = db.prepare('SELECT * FROM incomes WHERE id = ?').get(id);
+  const existingResult = await pool.query('SELECT * FROM incomes WHERE id = $1', [id]);
+  const existing = existingResult.rows[0];
   if (!existing) {
     return res.status(404).json({ message: 'Renda não encontrada.' });
   }
@@ -82,13 +81,13 @@ incomesRouter.patch('/:id', requireAuth, (req, res) => {
   // A data de recebimento não muda ao editar: continua sendo a data em que o lançamento foi criado.
   const roundedAmount = Math.round(amountCents);
 
-  db.prepare('UPDATE incomes SET fonte = ?, categoria = ?, tipo = ?, amount_cents = ? WHERE id = ?').run(
+  await pool.query('UPDATE incomes SET fonte = $1, categoria = $2, tipo = $3, amount_cents = $4 WHERE id = $5', [
     fonte.trim(),
     categoria.trim(),
     tipo.trim(),
     roundedAmount,
-    id
-  );
+    id,
+  ]);
 
   res.json({
     income: {
@@ -102,12 +101,12 @@ incomesRouter.patch('/:id', requireAuth, (req, res) => {
   });
 });
 
-incomesRouter.delete('/:id', requireAuth, (req, res) => {
+incomesRouter.delete('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  db.prepare('DELETE FROM incomes WHERE id = ?').run(id);
+  await pool.query('DELETE FROM incomes WHERE id = $1', [id]);
   res.status(204).send();
 });

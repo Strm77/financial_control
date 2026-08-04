@@ -1,14 +1,16 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { db } from '../db.js';
+import { pool } from '../db.js';
 import { requireAuth } from '../auth.js';
 import { parseFaturaPdf } from '../services/faturaParser.js';
 
 export const cardExpensesRouter = Router();
 
+// Vercel Serverless Functions limitam o corpo da requisição a ~4.5MB — manter a
+// margem evita um 413 genérico da plataforma antes mesmo do multer responder.
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 4 * 1024 * 1024 },
 });
 
 function toResponse(row) {
@@ -23,9 +25,9 @@ function toResponse(row) {
   };
 }
 
-cardExpensesRouter.get('/', requireAuth, (req, res) => {
+cardExpensesRouter.get('/', requireAuth, async (req, res) => {
   if (req.query.paymentId === undefined) {
-    const rows = db.prepare('SELECT * FROM card_expenses ORDER BY created_at DESC, id DESC').all();
+    const { rows } = await pool.query('SELECT * FROM card_expenses ORDER BY created_at DESC, id DESC');
     return res.json({ expenses: rows.map(toResponse) });
   }
 
@@ -34,9 +36,10 @@ cardExpensesRouter.get('/', requireAuth, (req, res) => {
     return res.status(400).json({ message: 'Informe um paymentId válido.' });
   }
 
-  const rows = db
-    .prepare('SELECT * FROM card_expenses WHERE payment_id = ? ORDER BY created_at DESC, id DESC')
-    .all(paymentId);
+  const { rows } = await pool.query(
+    'SELECT * FROM card_expenses WHERE payment_id = $1 ORDER BY created_at DESC, id DESC',
+    [paymentId]
+  );
 
   res.json({ expenses: rows.map(toResponse) });
 });
@@ -63,37 +66,35 @@ function validateExpense(body) {
   return null;
 }
 
-cardExpensesRouter.post('/', requireAuth, (req, res) => {
+cardExpensesRouter.post('/', requireAuth, async (req, res) => {
   const error = validateExpense(req.body);
   if (error) {
     return res.status(400).json({ message: error });
   }
 
-  const payment = db.prepare('SELECT id FROM payments WHERE id = ?').get(req.body.paymentId);
-  if (!payment) {
+  const paymentResult = await pool.query('SELECT id FROM payments WHERE id = $1', [req.body.paymentId]);
+  if (paymentResult.rows.length === 0) {
     return res.status(404).json({ message: 'Pagamento (cartão) não encontrado.' });
   }
 
   const { paymentId, descricao, valorCents, parcelaAtual, numeroParcelas, data } = req.body;
 
-  const result = db
-    .prepare(
-      `INSERT INTO card_expenses (payment_id, descricao, valor_cents, parcela_atual, numero_parcelas, data)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    )
-    .run(paymentId, descricao.trim(), Math.round(valorCents), parcelaAtual ?? null, numeroParcelas ?? null, data ?? null);
+  const { rows } = await pool.query(
+    `INSERT INTO card_expenses (payment_id, descricao, valor_cents, parcela_atual, numero_parcelas, data)
+     VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [paymentId, descricao.trim(), Math.round(valorCents), parcelaAtual ?? null, numeroParcelas ?? null, data ?? null]
+  );
 
-  const row = db.prepare('SELECT * FROM card_expenses WHERE id = ?').get(Number(result.lastInsertRowid));
-  res.status(201).json({ expense: toResponse(row) });
+  res.status(201).json({ expense: toResponse(rows[0]) });
 });
 
-cardExpensesRouter.delete('/:id', requireAuth, (req, res) => {
+cardExpensesRouter.delete('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  db.prepare('DELETE FROM card_expenses WHERE id = ?').run(id);
+  await pool.query('DELETE FROM card_expenses WHERE id = $1', [id]);
   res.status(204).send();
 });
 
@@ -103,8 +104,8 @@ cardExpensesRouter.post('/import', requireAuth, upload.single('file'), async (re
     return res.status(400).json({ message: 'Informe um paymentId válido.' });
   }
 
-  const payment = db.prepare('SELECT id FROM payments WHERE id = ?').get(paymentId);
-  if (!payment) {
+  const paymentResult = await pool.query('SELECT id FROM payments WHERE id = $1', [paymentId]);
+  if (paymentResult.rows.length === 0) {
     return res.status(404).json({ message: 'Pagamento (cartão) não encontrado.' });
   }
 
@@ -131,17 +132,15 @@ cardExpensesRouter.post('/import', requireAuth, upload.single('file'), async (re
     });
   }
 
-  const insert = db.prepare(
-    `INSERT INTO card_expenses (payment_id, descricao, valor_cents, parcela_atual, numero_parcelas)
-     VALUES (?, ?, ?, ?, ?)`
-  );
-
-  const inserted = items.map((item) => {
-    const result = insert.run(paymentId, item.descricao, item.valorCents, item.parcelaAtual, item.numeroParcelas);
-    return toResponse(
-      db.prepare('SELECT * FROM card_expenses WHERE id = ?').get(Number(result.lastInsertRowid))
+  const inserted = [];
+  for (const item of items) {
+    const { rows } = await pool.query(
+      `INSERT INTO card_expenses (payment_id, descricao, valor_cents, parcela_atual, numero_parcelas)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [paymentId, item.descricao, item.valorCents, item.parcelaAtual, item.numeroParcelas]
     );
-  });
+    inserted.push(toResponse(rows[0]));
+  }
 
   res.status(201).json({ expenses: inserted, message: `${inserted.length} itens importados da fatura.` });
 });

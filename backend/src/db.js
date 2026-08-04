@@ -1,40 +1,42 @@
-import { DatabaseSync } from 'node:sqlite';
-import path from 'node:path';
-import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import pg from 'pg';
 import bcrypt from 'bcryptjs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const DB_PATH = path.join(DATA_DIR, 'financial_control.db');
+const { Pool } = pg;
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+const connectionString = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+
+if (!connectionString) {
+  throw new Error(
+    'Defina a variável de ambiente DATABASE_URL (ou POSTGRES_URL) com a connection string do Postgres.'
+  );
 }
 
-export const db = new DatabaseSync(DB_PATH);
+const isLocal = /localhost|127\.0\.0\.1/.test(connectionString);
 
-db.exec('PRAGMA foreign_keys = ON;');
+export const pool = new Pool({
+  connectionString,
+  ssl: isLocal ? false : { rejectUnauthorized: false },
+});
 
-db.exec(`
+const SCHEMA_SQL = `
   CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now')),
-    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 
   CREATE TABLE IF NOT EXISTS activity_log (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     event TEXT NOT NULL,
     details TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 
   CREATE TABLE IF NOT EXISTS payments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     descricao TEXT NOT NULL,
     tipo TEXT NOT NULL,
     categoria TEXT NOT NULL,
@@ -43,70 +45,69 @@ db.exec(`
     desconto_cents INTEGER NOT NULL DEFAULT 0,
     due_date TEXT NOT NULL,
     payment_date TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 
   CREATE TABLE IF NOT EXISTS card_expenses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     payment_id INTEGER NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
     descricao TEXT NOT NULL,
     valor_cents INTEGER NOT NULL,
     parcela_atual INTEGER,
     numero_parcelas INTEGER,
     data TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 
   CREATE TABLE IF NOT EXISTS select_options (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     section TEXT NOT NULL,
     field TEXT NOT NULL,
     label TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 
   CREATE TABLE IF NOT EXISTS incomes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     fonte TEXT NOT NULL,
     categoria TEXT NOT NULL,
     tipo TEXT NOT NULL,
     amount_cents INTEGER NOT NULL,
     received_date TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 
   CREATE TABLE IF NOT EXISTS debts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     credor TEXT NOT NULL,
     valor_contratado_cents INTEGER NOT NULL,
     valor_parcela_cents INTEGER NOT NULL,
     numero_parcelas INTEGER NOT NULL,
     parcela_atual INTEGER NOT NULL,
-    juros_percent REAL,
+    juros_percent DOUBLE PRECISION,
     due_date TEXT NOT NULL,
-    recorrente INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    recorrente BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
-`);
+`;
 
 const DEFAULT_USERS = [
   { username: 'Brunno.', password: '7753955' },
   { username: 'Carol.', password: '051297' },
 ];
 
-function seedDefaultUsers() {
-  const existing = db.prepare('SELECT id FROM users WHERE username = ?');
-  const insert = db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)');
-
+async function seedDefaultUsers() {
   for (const { username, password } of DEFAULT_USERS) {
-    if (existing.get(username)) continue;
-    insert.run(username, bcrypt.hashSync(password, 10));
+    const { rows } = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
+    if (rows.length > 0) continue;
+    const passwordHash = bcrypt.hashSync(password, 10);
+    await pool.query('INSERT INTO users (username, password_hash) VALUES ($1, $2)', [username, passwordHash]);
   }
 }
 
-function seedDemoPayments() {
-  const { count } = db.prepare('SELECT COUNT(*) AS count FROM payments').get();
-  if (count > 0) return;
+async function seedDemoPayments() {
+  const { rows } = await pool.query('SELECT COUNT(*)::int AS count FROM payments');
+  if (rows[0].count > 0) return;
 
   const now = new Date();
   const year = now.getFullYear();
@@ -176,29 +177,27 @@ function seedDemoPayments() {
     },
   ];
 
-  const insert = db.prepare(
-    `INSERT INTO payments (descricao, tipo, categoria, valor_cents, valor_pago_cents, desconto_cents, due_date, payment_date)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-  );
   for (const payment of demoPayments) {
-    insert.run(
-      payment.descricao,
-      payment.tipo,
-      payment.categoria,
-      payment.valor_cents,
-      payment.valor_pago_cents,
-      payment.desconto_cents,
-      payment.due_date,
-      payment.payment_date
+    await pool.query(
+      `INSERT INTO payments (descricao, tipo, categoria, valor_cents, valor_pago_cents, desconto_cents, due_date, payment_date)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        payment.descricao,
+        payment.tipo,
+        payment.categoria,
+        payment.valor_cents,
+        payment.valor_pago_cents,
+        payment.desconto_cents,
+        payment.due_date,
+        payment.payment_date,
+      ]
     );
   }
 }
 
-function seedIncomeOptions() {
-  const { count } = db
-    .prepare("SELECT COUNT(*) AS count FROM select_options WHERE section = 'renda'")
-    .get();
-  if (count > 0) return;
+async function seedIncomeOptions() {
+  const { rows } = await pool.query("SELECT COUNT(*)::int AS count FROM select_options WHERE section = 'renda'");
+  if (rows[0].count > 0) return;
 
   const defaults = {
     fonte: ['Salário', 'Freelance', 'Aluguel Recebido', 'Investimentos', 'Outros'],
@@ -206,22 +205,45 @@ function seedIncomeOptions() {
     tipo: ['Recorrente', 'Pontual'],
   };
 
-  const insert = db.prepare('INSERT INTO select_options (section, field, label) VALUES (?, ?, ?)');
   for (const [field, labels] of Object.entries(defaults)) {
     for (const label of labels) {
-      insert.run('renda', field, label);
+      await pool.query('INSERT INTO select_options (section, field, label) VALUES ($1, $2, $3)', [
+        'renda',
+        field,
+        label,
+      ]);
     }
   }
 }
 
-seedDefaultUsers();
-seedDemoPayments();
-seedIncomeOptions();
+let readyPromise = null;
 
-export function logActivity(userId, event, details) {
-  db.prepare('INSERT INTO activity_log (user_id, event, details) VALUES (?, ?, ?)').run(
-    userId ?? null,
-    event,
-    details ? JSON.stringify(details) : null
-  );
+// No banco serverless (Vercel), cada cold start precisa garantir que o schema e os
+// dados iniciais existam antes de atender a primeira requisição. A promise é
+// memorizada para que as chamadas seguintes (mesma instância "quente") não repitam o trabalho.
+export function ensureReady() {
+  if (!readyPromise) {
+    readyPromise = (async () => {
+      await pool.query(SCHEMA_SQL);
+      await seedDefaultUsers();
+      await seedDemoPayments();
+      await seedIncomeOptions();
+    })().catch((err) => {
+      readyPromise = null;
+      throw err;
+    });
+  }
+  return readyPromise;
+}
+
+export async function logActivity(userId, event, details) {
+  try {
+    await pool.query('INSERT INTO activity_log (user_id, event, details) VALUES ($1, $2, $3)', [
+      userId ?? null,
+      event,
+      details ? JSON.stringify(details) : null,
+    ]);
+  } catch {
+    // O log de atividade é apenas informativo — nunca deve derrubar a requisição.
+  }
 }

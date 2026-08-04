@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db } from '../db.js';
+import { pool } from '../db.js';
 import { requireAuth } from '../auth.js';
 
 export const paymentsRouter = Router();
@@ -64,12 +64,12 @@ function validate(body) {
   return null;
 }
 
-paymentsRouter.get('/', requireAuth, (_req, res) => {
-  const rows = db.prepare('SELECT * FROM payments ORDER BY due_date ASC').all();
+paymentsRouter.get('/', requireAuth, async (_req, res) => {
+  const { rows } = await pool.query('SELECT * FROM payments ORDER BY due_date ASC');
   res.json({ payments: rows.map(toResponse) });
 });
 
-paymentsRouter.post('/', requireAuth, (req, res) => {
+paymentsRouter.post('/', requireAuth, async (req, res) => {
   const error = validate(req.body);
   if (error) {
     return res.status(400).json({ message: error });
@@ -79,12 +79,10 @@ paymentsRouter.post('/', requireAuth, (req, res) => {
   const roundedValorPago = Math.round(valorPagoCents ?? 0);
   const paymentDate = roundedValorPago > 0 ? todayIso() : null;
 
-  const result = db
-    .prepare(
-      `INSERT INTO payments (descricao, tipo, categoria, valor_cents, valor_pago_cents, desconto_cents, due_date, payment_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
-    )
-    .run(
+  const { rows } = await pool.query(
+    `INSERT INTO payments (descricao, tipo, categoria, valor_cents, valor_pago_cents, desconto_cents, due_date, payment_date)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+    [
       descricao.trim(),
       tipo.trim(),
       categoria.trim(),
@@ -92,20 +90,21 @@ paymentsRouter.post('/', requireAuth, (req, res) => {
       roundedValorPago,
       Math.round(descontoCents ?? 0),
       dueDate,
-      paymentDate
-    );
+      paymentDate,
+    ]
+  );
 
-  const row = db.prepare('SELECT * FROM payments WHERE id = ?').get(Number(result.lastInsertRowid));
-  res.status(201).json({ payment: toResponse(row) });
+  res.status(201).json({ payment: toResponse(rows[0]) });
 });
 
-paymentsRouter.patch('/:id', requireAuth, (req, res) => {
+paymentsRouter.patch('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  const existing = db.prepare('SELECT * FROM payments WHERE id = ?').get(id);
+  const existingResult = await pool.query('SELECT * FROM payments WHERE id = $1', [id]);
+  const existing = existingResult.rows[0];
   if (!existing) {
     return res.status(404).json({ message: 'Pagamento não encontrado.' });
   }
@@ -127,31 +126,31 @@ paymentsRouter.patch('/:id', requireAuth, (req, res) => {
     paymentDate = todayIso();
   }
 
-  db.prepare(
-    `UPDATE payments SET descricao = ?, tipo = ?, categoria = ?, valor_cents = ?, valor_pago_cents = ?,
-     desconto_cents = ?, due_date = ?, payment_date = ? WHERE id = ?`
-  ).run(
-    descricao.trim(),
-    tipo.trim(),
-    categoria.trim(),
-    Math.round(valorCents),
-    roundedValorPago,
-    Math.round(descontoCents ?? 0),
-    dueDate,
-    paymentDate,
-    id
+  const { rows } = await pool.query(
+    `UPDATE payments SET descricao = $1, tipo = $2, categoria = $3, valor_cents = $4, valor_pago_cents = $5,
+     desconto_cents = $6, due_date = $7, payment_date = $8 WHERE id = $9 RETURNING *`,
+    [
+      descricao.trim(),
+      tipo.trim(),
+      categoria.trim(),
+      Math.round(valorCents),
+      roundedValorPago,
+      Math.round(descontoCents ?? 0),
+      dueDate,
+      paymentDate,
+      id,
+    ]
   );
 
-  const row = db.prepare('SELECT * FROM payments WHERE id = ?').get(id);
-  res.json({ payment: toResponse(row) });
+  res.json({ payment: toResponse(rows[0]) });
 });
 
-paymentsRouter.delete('/:id', requireAuth, (req, res) => {
+paymentsRouter.delete('/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  db.prepare('DELETE FROM payments WHERE id = ?').run(id);
+  await pool.query('DELETE FROM payments WHERE id = $1', [id]);
   res.status(204).send();
 });

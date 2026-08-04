@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db } from '../db.js';
+import { pool } from '../db.js';
 import { requireAuth } from '../auth.js';
 
 export const settingsRouter = Router();
@@ -7,20 +7,21 @@ export const settingsRouter = Router();
 const ALLOWED_SECTIONS = ['renda'];
 const ALLOWED_FIELDS = ['fonte', 'categoria', 'tipo'];
 
-settingsRouter.get('/options', requireAuth, (req, res) => {
+settingsRouter.get('/options', requireAuth, async (req, res) => {
   const section = String(req.query.section ?? '');
   if (!ALLOWED_SECTIONS.includes(section)) {
     return res.status(400).json({ message: 'Seção inválida.' });
   }
 
-  const rows = db
-    .prepare('SELECT id, field, label FROM select_options WHERE section = ? ORDER BY field, label')
-    .all(section);
+  const { rows } = await pool.query(
+    'SELECT id, field, label FROM select_options WHERE section = $1 ORDER BY field, label',
+    [section]
+  );
 
   res.json({ options: rows });
 });
 
-settingsRouter.post('/options', requireAuth, (req, res) => {
+settingsRouter.post('/options', requireAuth, async (req, res) => {
   const { section, field, label } = req.body ?? {};
 
   if (
@@ -33,29 +34,31 @@ settingsRouter.post('/options', requireAuth, (req, res) => {
   }
 
   const trimmedLabel = label.trim();
-  const existing = db
-    .prepare('SELECT id FROM select_options WHERE section = ? AND field = ? AND label = ?')
-    .get(section, field, trimmedLabel);
+  const existingResult = await pool.query(
+    'SELECT id FROM select_options WHERE section = $1 AND field = $2 AND label = $3',
+    [section, field, trimmedLabel]
+  );
 
-  if (existing) {
+  if (existingResult.rows.length > 0) {
     return res.status(409).json({ message: 'Essa opção já existe.' });
   }
 
-  const result = db
-    .prepare('INSERT INTO select_options (section, field, label) VALUES (?, ?, ?)')
-    .run(section, field, trimmedLabel);
+  const { rows } = await pool.query(
+    'INSERT INTO select_options (section, field, label) VALUES ($1, $2, $3) RETURNING id',
+    [section, field, trimmedLabel]
+  );
 
   res.status(201).json({
-    option: { id: Number(result.lastInsertRowid), field, label: trimmedLabel },
+    option: { id: rows[0].id, field, label: trimmedLabel },
   });
 });
 
-settingsRouter.delete('/options/:id', requireAuth, (req, res) => {
+settingsRouter.delete('/options/:id', requireAuth, async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
   }
 
-  db.prepare('DELETE FROM select_options WHERE id = ?').run(id);
+  await pool.query('DELETE FROM select_options WHERE id = $1', [id]);
   res.status(204).send();
 });

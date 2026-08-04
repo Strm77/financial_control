@@ -1,0 +1,10 @@
+{
+  "name": "financial-control",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Monorepo raiz — usado apenas para a função serverless da Vercel (api/index.js). O app React vive em frontend/ e a API em backend/.",
+  "engines": {
+    "node": "20.x"
+  }
+}
