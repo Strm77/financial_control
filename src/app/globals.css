@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------- */
+/* Design tokens — Neo Brutalism                                          */
+/* ---------------------------------------------------------------------- */
+:root {
+  --background: #f5f1e8;
+  --background-alt: #ede6d3;
+  --foreground: #171310;
+
+  --primary: #ffd23f;
+  --primary-foreground: #171310;
+
+  --secondary: #7cc6fe;
+  --secondary-foreground: #171310;
+
+  --accent: #ff6b6b;
+  --accent-foreground: #171310;
+
+  --success: #4fb85f;
+  --success-foreground: #0c1e0e;
+
+  --warning: #ffb020;
+  --warning-foreground: #171310;
+
+  --danger: #e8433a;
+  --danger-foreground: #ffffff;
+
+  --muted: #e4dcc8;
+  --muted-foreground: #55503f;
+
+  --card: #fffdf7;
+  --card-foreground: #171310;
+
+  --border: #171310;
+  --border-width: 3px;
+
+  --shadow-color: #171310;
+  --shadow-offset: 5px;
+  --shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--shadow-color);
+  --shadow-sm: 3px 3px 0 0 var(--shadow-color);
+  --shadow-lg: 8px 8px 0 0 var(--shadow-color);
+
+  --radius: 6px;
+
+  --font-display: var(--font-space-grotesk), "Arial Black", sans-serif;
+  --font-body: var(--font-work-sans), Arial, sans-serif;
+}
+
+:root[data-theme="dark"] {
+  --background: #1b1812;
+  --background-alt: #23201a;
+  --foreground: #f5f1e8;
+
+  --primary: #ffd23f;
+  --primary-foreground: #171310;
+
+  --secondary: #7cc6fe;
+  --secondary-foreground: #171310;
+
+  --accent: #ff8577;
+  --accent-foreground: #171310;
+
+  --success: #67d478;
+  --success-foreground: #0c1e0e;
+
+  --warning: #ffc247;
+  --warning-foreground: #171310;
+
+  --danger: #ff6b60;
+  --danger-foreground: #1b1812;
+
+  --muted: #2c2820;
+  --muted-foreground: #c9c2ac;
+
+  --card: #23201a;
+  --card-foreground: #f5f1e8;
+
+  --border: #f5f1e8;
+  --shadow-color: #000000;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-alt: var(--background-alt);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-border: var(--border);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Foco de teclado sempre visível */
+:focus-visible {
+  outline: 3px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+.brutal-scroll {
+  scrollbar-width: thin;
+}
+
+/* Utilitário de sombra brutalista reutilizável fora do Tailwind arbitrary */
+.shadow-brutal {
+  box-shadow: var(--shadow);
+}
+.shadow-brutal-sm {
+  box-shadow: var(--shadow-sm);
+}
+.shadow-brutal-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+.border-brutal {
+  border-style: solid;
+  border-width: var(--border-width);
+  border-color: var(--border);
+}
+
+.rounded-brutal {
+  border-radius: var(--radius);
+}
+
+/* Microinteração padrão: hover "empurra" o elemento na direção da sombra */
+.press-brutal {
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.press-brutal:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 3px 3px 0 0 var(--shadow-color);
+}
+.press-brutal:active {
+  transform: translate(5px, 5px);
+  box-shadow: 0 0 0 0 var(--shadow-color);
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-skeleton {
+  animation: skeleton-pulse 1.4s ease-in-out infinite;
+}
