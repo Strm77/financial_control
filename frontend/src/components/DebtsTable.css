@@ -231,11 +231,11 @@
 }
 
 .debts-table__amount--paid {
-  color: #0a8f5c;
+  color: var(--accent-green);
 }
 
 .debts-table__amount--due {
-  color: #c22a1f;
+  color: var(--accent-red);
 }
 
 .debts-progress {

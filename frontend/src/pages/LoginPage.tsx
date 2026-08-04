@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { ApiError } from '../api/authApi'
+import { ThemeToggle } from '../components/ThemeToggle'
 import './LoginPage.css'
 
 export function LoginPage() {
@@ -31,6 +32,9 @@ export function LoginPage() {
 
   return (
     <div className="login-screen">
+      <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
       <main className="login-stage">
         <form className="neo-panel login-card" onSubmit={handleSubmit} noValidate>
           <div className="login-card__content">

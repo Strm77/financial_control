@@ -89,12 +89,19 @@ db.exec(`
   );
 `);
 
-function seedDefaultUser() {
-  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get('Brunno.');
-  if (existing) return;
+const DEFAULT_USERS = [
+  { username: 'Brunno.', password: '7753955' },
+  { username: 'Carol.', password: '051297' },
+];
 
-  const passwordHash = bcrypt.hashSync('7753955', 10);
-  db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)').run('Brunno.', passwordHash);
+function seedDefaultUsers() {
+  const existing = db.prepare('SELECT id FROM users WHERE username = ?');
+  const insert = db.prepare('INSERT INTO users (username, password_hash) VALUES (?, ?)');
+
+  for (const { username, password } of DEFAULT_USERS) {
+    if (existing.get(username)) continue;
+    insert.run(username, bcrypt.hashSync(password, 10));
+  }
 }
 
 function seedDemoPayments() {
@@ -207,7 +214,7 @@ function seedIncomeOptions() {
   }
 }
 
-seedDefaultUser();
+seedDefaultUsers();
 seedDemoPayments();
 seedIncomeOptions();
 

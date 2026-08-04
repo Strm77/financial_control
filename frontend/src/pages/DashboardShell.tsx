@@ -6,6 +6,7 @@ import { IncomeTable } from '../components/IncomeTable'
 import { DebtsTable } from '../components/DebtsTable'
 import { GastoMesPage } from '../components/GastoMesPage'
 import { DashboardPage } from '../components/DashboardPage'
+import { ThemeToggle } from '../components/ThemeToggle'
 import { IconDashboard, IconDebt, IconExpense, IconIncome, IconPayments, IconSettings } from '../components/icons'
 import { useAuth } from '../context/AuthContext'
 import { MonthProvider } from '../context/MonthContext'
@@ -58,9 +59,12 @@ function DashboardShellContent() {
               <span className="app-topbar__eyebrow">Olá, {user?.username}</span>
               <h1>{activeItem.label}</h1>
             </div>
-            <button type="button" className="logout-button" onClick={logout}>
-              Sair
-            </button>
+            <div className="app-topbar__actions">
+              <ThemeToggle />
+              <button type="button" className="logout-button" onClick={logout}>
+                Sair
+              </button>
+            </div>
           </header>
 
           <main className="app-main">{renderMain()}</main>

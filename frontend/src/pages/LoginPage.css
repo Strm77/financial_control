@@ -6,6 +6,13 @@
   justify-content: center;
 }
 
+.login-theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 2;
+}
+
 .login-stage {
   position: relative;
   z-index: 1;

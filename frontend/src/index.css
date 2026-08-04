@@ -9,7 +9,7 @@
   --muted: #706d64;
 
   /* brand + accents (flat, saturated — no gradients) */
-  --brand: #ffd400;
+  --brand: #ff3e88;
   --accent-pink: #ff3e88;
   --accent-blue: #2e5eff;
   --accent-green: #17c78b;
@@ -24,10 +24,35 @@
   --danger: var(--accent-red);
   --status-gray: #b9b6ab;
 
+  /* dot-grid background dot color */
+  --dot-color: rgba(17, 17, 17, 0.14);
+
   /* brutalist structure */
   --border-w: 3px;
   --shadow-off: 6px;
   --radius: 4px;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* surfaces */
+  --paper: #18151f;
+  --paper-alt: #221e2c;
+  --ink: #f4f2fa;
+  --ink-soft: #cfc9dc;
+  --muted: #948da8;
+
+  /* brand + accents — purple focus in dark mode */
+  --brand: #a855f7;
+  --accent-pink: #ff6fae;
+  --accent-blue: #6f93ff;
+  --accent-green: #35e0a8;
+  --accent-amber: #ffc65c;
+  --accent-red: #ff6259;
+
+  --status-gray: #4c4760;
+  --dot-color: rgba(244, 242, 250, 0.08);
 }
 
 * {
@@ -45,10 +70,13 @@ body {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   color: var(--ink);
   background: var(--paper);
-  background-image: radial-gradient(circle, rgba(17, 17, 17, 0.14) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
   background-size: 22px 22px;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 h1,
