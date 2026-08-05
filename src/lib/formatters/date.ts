@@ -24,6 +24,13 @@ function normalizeMonthString(value: string): string {
   return value.length === 7 ? `${value}-01` : value;
 }
 
+/** Formata só o nome do mês (ex: "Agosto") a partir de uma data ou string "YYYY-MM-DD"/"YYYY-MM". */
+export function formatMonthNameBR(date: string | Date): string {
+  const parsed = typeof date === "string" ? parseDateOnly(normalizeMonthString(date)) : date;
+  const label = format(parsed, "MMMM", { locale: ptBR });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
 /** Formata um timestamp ISO (com hora) considerando o fuso America/Sao_Paulo. */
 export function formatDateTimeBR(isoTimestamp: string): string {
   return new Intl.DateTimeFormat("pt-BR", {

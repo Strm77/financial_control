@@ -11,7 +11,7 @@
   --background-alt: #e2ddd0;
   --foreground: #2b2620;
 
-  --primary: #1f7a5c;
+  --primary: #7c1f3d;
   --primary-foreground: #ffffff;
 
   --secondary: #2f6f8a;
@@ -64,8 +64,8 @@
   --background-alt: #262219;
   --foreground: #ece6d8;
 
-  --primary: #3bb383;
-  --primary-foreground: #08160f;
+  --primary: #c2416a;
+  --primary-foreground: #2b0512;
 
   --secondary: #4fa2c2;
   --secondary-foreground: #061419;
@@ -303,5 +303,43 @@ h1, h2, h3, h4, h5, h6 {
   .animate-overlay,
   .animate-dialog {
     animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Nav bar — pílulas flat com glow colorido por item (cor via --glow)     */
+/* ---------------------------------------------------------------------- */
+.nav-pill {
+  --glow: var(--primary);
+  color: var(--muted-foreground);
+  background: transparent;
+  transition: background-color 200ms var(--ease-out), color 200ms var(--ease-out), box-shadow 200ms var(--ease-out);
+}
+.nav-pill:hover {
+  background: color-mix(in srgb, var(--glow) 10%, transparent);
+  color: var(--foreground);
+}
+.nav-pill[data-active="true"] {
+  background: color-mix(in srgb, var(--glow) 18%, transparent);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--glow) 60%, transparent),
+    0 0 26px 3px color-mix(in srgb, var(--glow) 42%, transparent);
+  color: var(--glow);
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-pill {
+    transition: none;
+  }
+}
+
+/* Month selector — fita de meses com transição de roleta */
+.month-track {
+  transition: transform 420ms var(--ease-out);
+}
+.month-track[data-sliding="false"] {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .month-track {
+    transition: none;
   }
 }

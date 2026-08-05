@@ -4,7 +4,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { ChangePasswordForm } from "@/components/settings/change-password-form";
+import { CategoriesManager } from "@/components/finance/categories-manager";
 import { formatDateTimeBR } from "@/lib/formatters/date";
+import type { Category } from "@/types/entities";
 
 export const metadata = { title: "Configurações — Financeiro Pessoal" };
 
@@ -17,6 +19,7 @@ export default async function ConfiguracoesPage() {
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  const { data: categories } = await supabase.from("categories").select("*").order("name", { ascending: true });
 
   return (
     <div>
@@ -46,6 +49,14 @@ export default async function ConfiguracoesPage() {
             </div>
           </dl>
         </Card>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-bold font-display mb-4">Categorias</h2>
+        <CategoriesManager
+          incomeCategories={(categories ?? []).filter((c: Category) => c.type === "income")}
+          expenseCategories={(categories ?? []).filter((c: Category) => c.type === "expense")}
+        />
       </div>
     </div>
   );

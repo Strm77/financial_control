@@ -37,7 +37,7 @@ export async function createCategoryAction(values: CategoryFormValues): Promise<
     return { success: false, message: "Não foi possível criar a categoria." };
   }
 
-  revalidatePath("/categorias");
+  revalidatePath("/configuracoes");
   return { success: true, data };
 }
 
@@ -74,7 +74,7 @@ export async function updateCategoryAction(id: string, values: CategoryFormValue
     return { success: false, message: "Não foi possível atualizar a categoria." };
   }
 
-  revalidatePath("/categorias");
+  revalidatePath("/configuracoes");
   return { success: true, data };
 }
 
@@ -96,7 +96,7 @@ export async function deleteCategoryAction(id: string): Promise<ActionResult> {
     return { success: false, message: "Não foi possível excluir a categoria." };
   }
 
-  revalidatePath("/categorias");
+  revalidatePath("/configuracoes");
   revalidatePath("/transacoes");
   revalidatePath("/pagamentos");
   return { success: true };
@@ -111,6 +111,6 @@ export async function seedDefaultCategoriesAction(): Promise<ActionResult> {
     return { success: false, message: "Não foi possível criar as categorias padrão." };
   }
 
-  revalidatePath("/categorias");
+  revalidatePath("/configuracoes");
   return { success: true };
 }
