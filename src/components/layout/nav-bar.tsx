@@ -10,7 +10,7 @@ export function NavBar() {
 
   return (
     <nav aria-label="Navegação principal" className="overflow-x-auto neu-scroll">
-      <ul className="flex items-center gap-1.5 px-4 sm:px-6 py-2.5 min-w-max">
+      <ul className="flex items-center gap-1.5 px-4 sm:px-8 py-2.5 min-w-max sm:min-w-0 sm:w-full sm:justify-between">
         {NAV_ITEMS.map((item) => {
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;

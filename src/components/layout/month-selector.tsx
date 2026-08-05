@@ -51,43 +51,48 @@ export function MonthSelector({ period, onChange }: MonthSelectorProps) {
   const step = direction === "next" ? -2 : direction === "prev" ? 0 : -1;
 
   return (
-    <div className="relative overflow-hidden select-none" style={{ width: ITEM_WIDTH * 3 }}>
-      <div
-        data-sliding={direction !== null}
-        className="month-track flex"
-        style={{ transform: `translateX(${step * ITEM_WIDTH}px)` }}
-        onTransitionEnd={handleTransitionEnd}
-      >
-        {items.map((item, i) => {
-          const isCurrent = i === CENTER_INDEX;
-          const isPrev = i === CENTER_INDEX - 1;
-          const isNext = i === CENTER_INDEX + 1;
-          const clickable = isPrev || isNext;
+    <div
+      className="rounded-[var(--radius)] px-3 py-1.5"
+      style={{ background: "var(--month-panel-bg)", color: "var(--month-panel-foreground)" }}
+    >
+      <div className="relative overflow-hidden select-none" style={{ width: ITEM_WIDTH * 3 }}>
+        <div
+          data-sliding={direction !== null}
+          className="month-track flex"
+          style={{ transform: `translateX(${step * ITEM_WIDTH}px)` }}
+          onTransitionEnd={handleTransitionEnd}
+        >
+          {items.map((item, i) => {
+            const isCurrent = i === CENTER_INDEX;
+            const isPrev = i === CENTER_INDEX - 1;
+            const isNext = i === CENTER_INDEX + 1;
+            const clickable = isPrev || isNext;
 
-          return (
-            <div key={monthKey(item)} className="shrink-0 text-center" style={{ width: ITEM_WIDTH }}>
-              {clickable ? (
-                <button
-                  type="button"
-                  aria-label={isPrev ? "Mês anterior" : "Próximo mês"}
-                  onClick={() => go(isPrev ? -1 : 1)}
-                  className="w-full truncate px-1 py-1 text-sm capitalize text-muted-foreground hover:text-foreground cursor-pointer"
-                >
-                  {monthLabel(item)}
-                </button>
-              ) : (
-                <span
-                  className={cn(
-                    "block truncate px-1 py-1 text-base font-bold capitalize text-primary",
-                    !isCurrent && "invisible"
-                  )}
-                >
-                  {monthLabel(item)}
-                </span>
-              )}
-            </div>
-          );
-        })}
+            return (
+              <div key={monthKey(item)} className="shrink-0 text-center" style={{ width: ITEM_WIDTH }}>
+                {clickable ? (
+                  <button
+                    type="button"
+                    aria-label={isPrev ? "Mês anterior" : "Próximo mês"}
+                    onClick={() => go(isPrev ? -1 : 1)}
+                    className="w-full truncate px-1 py-1 text-sm capitalize opacity-55 hover:opacity-100 transition-opacity cursor-pointer"
+                  >
+                    {monthLabel(item)}
+                  </button>
+                ) : (
+                  <span
+                    className={cn(
+                      "block truncate px-1 py-1 text-base font-bold capitalize text-primary",
+                      !isCurrent && "invisible"
+                    )}
+                  >
+                    {monthLabel(item)}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

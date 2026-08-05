@@ -57,6 +57,10 @@
   --font-body: var(--font-work-sans), Arial, sans-serif;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Painel sólido flat atrás do Month Selector. */
+  --month-panel-bg: var(--muted);
+  --month-panel-foreground: var(--foreground);
 }
 
 :root[data-theme="dark"] {
@@ -99,6 +103,9 @@
   --shadow-flat-lg: 14px 14px 30px var(--neu-dark), -14px -14px 30px var(--neu-light);
   --shadow-inset-sm: inset 2.5px 2.5px 6px var(--neu-dark), inset -2.5px -2.5px 6px var(--neu-light);
   --shadow-inset: inset 4px 4px 9px var(--neu-dark), inset -4px -4px 9px var(--neu-light);
+
+  --month-panel-bg: #3a2a56;
+  --month-panel-foreground: #f1eaff;
 }
 
 @theme inline {
