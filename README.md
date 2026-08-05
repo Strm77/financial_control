@@ -33,9 +33,11 @@ src/
     (app)/                        grupo de rotas privadas (protegidas por middleware)
       layout.tsx                 layout privado: sidebar, header, bottom nav
       dashboard/
+      renda/                      renda fixa/variável do mês
       transacoes/
-      pagamentos/
-      dividas/
+      pagamentos/                 "Controle de Pagamento" (fixa/temporária/variável)
+      dividas/                    com controle de parcelas
+      faturas/                    cartões e faturas com anexo (Supabase Storage)
       metas/
       categorias/
       configuracoes/
@@ -55,7 +57,10 @@ src/
   types/
 supabase/
   migrations/
-    0001_init.sql                 schema completo, RLS, policies, triggers, RPCs
+    0001_init.sql                 schema inicial, RLS, policies, triggers, RPCs
+    0002_income_installments_invoices.sql   renda, parcelas de dívida, controle de
+                                             pagamento (tipo/parcial), cartões e faturas
+                                             (+ bucket de Storage "faturas")
 ```
 
 - **Server Components por padrão**; Client Components apenas onde há interação, formulário, gráfico ou APIs do navegador.
@@ -73,6 +78,13 @@ Este é o requisito mais importante do projeto, então vale destacar como ele é
 5. O código da aplicação **nunca usa a `service_role` key** — em nenhum lugar, nem no servidor. Toda leitura/escrita usa a chave anônima pública autenticada com a sessão do usuário via cookies, então mesmo um bug no código da aplicação não consegue contornar o RLS.
 6. Os filtros `.eq("user_id", user.id)` que você verá no código são um reforço de clareza/performance — a proteção real está nas *policies* do Postgres.
 
+## Funcionalidades por menu
+
+- **Renda**: lançamentos de renda fixa (salário) e variável (freelance) por mês, somados automaticamente como a renda do mês selecionado.
+- **Controle de Pagamento** (`/pagamentos`): cobranças com tipo **fixa** (recorrente sem fim), **temporária** (recorrente com data de término) ou **variável** (valor muda a cada mês). O status **pago/parcial** é inferido automaticamente comparando o valor pago com o valor esperado — não é um campo que você escolhe manualmente. O **desconto** (ou acréscimo, se pagou mais) é calculado como `valor esperado − valor pago` e exibido junto ao lançamento. O dia de vencimento é sempre um *dia do mês* (não uma data fixa): o app recalcula sozinho o próximo vencimento a cada mês, inclusive ajustando para o último dia válido (ex: dia 31 em fevereiro vira dia 28).
+- **Dívidas**: além do saldo devedor, é possível informar valor da parcela e número total de parcelas — a parcela atual é sempre calculada a partir de quantos pagamentos já foram registrados (nunca fica dessincronizada). O dia de vencimento funciona do mesmo jeito que em Pagamentos.
+- **Faturas**: cadastre seus cartões (crédito ou loja) e, para cada cartão, crie a fatura do mês. É possível anexar o PDF/imagem da fatura (armazenado no Supabase Storage, privado por usuário) e lançar os itens manualmente numa tabela, incluindo o controle de parcela atual/total de compras parceladas.
+
 ## Configuração passo a passo
 
 ### 1. Criar o projeto no Supabase
@@ -81,14 +93,16 @@ Este é o requisito mais importante do projeto, então vale destacar como ele é
 2. Clique em **New Project**, escolha uma organização, defina nome, senha do banco e região.
 3. Aguarde o provisionamento (1-2 minutos).
 
-### 2. Executar a migration SQL
+### 2. Executar as migrations SQL
 
 1. No painel do Supabase, abra **SQL Editor**.
 2. Cole todo o conteúdo de [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) e execute (**Run**).
-3. A migration é idempotente onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — pode ser executada novamente sem duplicar objetos.
-4. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
+3. Em seguida, numa nova query, cole todo o conteúdo de [`supabase/migrations/0002_income_installments_invoices.sql`](./supabase/migrations/0002_income_installments_invoices.sql) e execute. Essa migration adiciona: menu Renda, parcelas em Dívidas, o novo Controle de Pagamento (tipo fixa/temporária/variável e status parcial) e o menu Faturas (cartões, faturas e itens) — **incluindo a criação automática do bucket de Storage `faturas`** (privado, com policies por usuário) via `insert into storage.buckets`.
+4. As duas migrations são idempotentes onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — podem ser executadas novamente sem duplicar objetos.
+5. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
+6. Confirme também que o bucket foi criado: menu lateral → **Storage** → deve aparecer um bucket chamado **faturas** (privado). Se por algum motivo ele não aparecer (raro, depende de permissões do plano), crie manualmente: **Storage → New bucket → nome `faturas` → Private** — as policies de acesso já foram criadas pela migration e funcionam independente de quando o bucket foi criado.
 
-> Alternativamente, com a [Supabase CLI](https://supabase.com/docs/guides/cli) instalada: `supabase link --project-ref <seu-projeto>` e depois `supabase db push`.
+> Alternativamente, com a [Supabase CLI](https://supabase.com/docs/guides/cli) instalada: `supabase link --project-ref <seu-projeto>` e depois `supabase db push` (aplica todas as migrations da pasta de uma vez).
 
 ### 3. Configurar URL e redirect URLs do Auth
 
@@ -223,7 +237,11 @@ union all select 'payment_records', count(*) from public.payment_records where u
 union all select 'debts', count(*) from public.debts where user_id is null
 union all select 'debt_payments', count(*) from public.debt_payments where user_id is null
 union all select 'savings_goals', count(*) from public.savings_goals where user_id is null
-union all select 'savings_contributions', count(*) from public.savings_contributions where user_id is null;
+union all select 'savings_contributions', count(*) from public.savings_contributions where user_id is null
+union all select 'incomes', count(*) from public.incomes where user_id is null
+union all select 'cards', count(*) from public.cards where user_id is null
+union all select 'invoices', count(*) from public.invoices where user_id is null
+union all select 'invoice_items', count(*) from public.invoice_items where user_id is null;
 
 -- 4. Relações cruzadas entre usuários (não deveria retornar nenhuma linha)
 select t.id, t.user_id as transacao_user, c.user_id as categoria_user
@@ -250,6 +268,21 @@ select sc.id, sc.user_id as contribuicao_user, sg.user_id as meta_user
 from public.savings_contributions sc
 join public.savings_goals sg on sg.id = sc.savings_goal_id
 where sc.user_id <> sg.user_id;
+
+select rp.id, rp.user_id as pagamento_user, c.user_id as cartao_user
+from public.recurring_payments rp
+join public.cards c on c.id = rp.card_id
+where rp.user_id <> c.user_id;
+
+select i.id, i.user_id as fatura_user, c.user_id as cartao_user
+from public.invoices i
+join public.cards c on c.id = i.card_id
+where i.user_id <> c.user_id;
+
+select ii.id, ii.user_id as item_user, i.user_id as fatura_user
+from public.invoice_items ii
+join public.invoices i on i.id = ii.invoice_id
+where ii.user_id <> i.user_id;
 ```
 
 Todas as queries acima devem retornar **zero linhas** nas seções 3 e 4 — se retornarem alguma, há um problema de integridade a investigar.
@@ -277,6 +310,9 @@ Normalmente indica que o `user_id` enviado não é igual a `auth.uid()`. Como to
 **Build falha na Vercel por variável de ambiente ausente**
 As variáveis `NEXT_PUBLIC_*` precisam existir em **todos** os ambientes usados (Production/Preview/Development) nas configurações do projeto na Vercel.
 
+**Erro ao anexar fatura ("Não foi possível enviar o arquivo")**
+Confirme que a migration `0002` foi executada (ela cria o bucket `faturas` e as policies de acesso). Se o bucket existir mas o upload falhar mesmo assim, verifique em **Storage → faturas → Policies** se as 4 policies (`faturas_select_own`, `faturas_insert_own`, `faturas_update_own`, `faturas_delete_own`) estão presentes — o app sempre envia o arquivo com o caminho `{user_id}/{invoice_id}/arquivo`, que é exatamente o que as policies exigem.
+
 ## Testes
 
 ```bash
@@ -289,7 +325,9 @@ Cobre as funções puras mais importantes (`src/lib/formatters` e `src/lib/finan
 - cálculo do último dia válido do mês (ex: cobrança no dia 31 em fevereiro);
 - cálculo de próximo vencimento (inclusive virada de mês/ano);
 - cálculo de progresso e valor mensal necessário para metas;
-- agregação mensal de receitas/despesas sem misturar meses diferentes.
+- agregação mensal de receitas/despesas sem misturar meses diferentes;
+- cálculo de parcela atual/total de dívidas e compras parceladas;
+- inferência automática de status pago/parcial e cálculo de desconto no Controle de Pagamento.
 
 ## Design: Neo Brutalism
 
@@ -305,5 +343,6 @@ Tokens de design (cores, bordas, sombras) ficam em `src/app/globals.css` como CS
 
 - Sem cadastro público (por design) — os dois usuários são criados manualmente no Supabase Dashboard.
 - Sem exclusão de conta (por design, conforme escopo do MVP).
-- Sem geração automática mensal de `payment_records` via cron — o status de cobranças recorrentes é calculado visualmente a partir de `due_day` e do histórico de pagamentos.
+- Sem geração automática mensal de `payment_records` via cron — o status de cobranças recorrentes (e de dívidas) é calculado visualmente a partir de `due_day` e do histórico de pagamentos.
 - A taxa de juros de dívidas é apenas informativa (sem cálculo de juros compostos automático).
+- O anexo de fatura é um arquivo de referência (PDF/imagem) com itens digitados manualmente — não há leitura/extração automática (OCR) do conteúdo do arquivo.

@@ -34,10 +34,11 @@ import {
   undoPaymentAction,
 } from "@/lib/actions/recurring-payments";
 import { computeRecurringPaymentMonthInfo, type ComputedPaymentStatus } from "@/lib/finance/recurring";
+import { computeDiscountCents } from "@/lib/finance/payment-progress";
 import { centsToBRL } from "@/lib/formatters/currency";
 import { formatDateBR } from "@/lib/formatters/date";
-import type { RecurringPaymentFormValues, MarkPaymentPaidFormValues } from "@/lib/validations/recurring-payment";
-import type { Category, PaymentRecord, RecurringPayment } from "@/types/entities";
+import { PAYMENT_TYPE_LABELS, type RecurringPaymentFormValues, type MarkPaymentPaidFormValues } from "@/lib/validations/recurring-payment";
+import type { Category, Card as CardEntity, PaymentRecord, RecurringPayment } from "@/types/entities";
 import { monthPeriodRange, type MonthPeriod } from "@/lib/finance/month";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +49,7 @@ interface EditDialogState {
 
 const STATUS_BADGE: Record<ComputedPaymentStatus, { label: string; variant: "success" | "warning" | "danger" }> = {
   paid: { label: "Pago", variant: "success" },
+  partial: { label: "Parcial", variant: "warning" },
   pending: { label: "Pendente", variant: "warning" },
   overdue: { label: "Atrasado", variant: "danger" },
 };
@@ -57,6 +59,7 @@ export function RecurringPaymentsManager({
   paymentRecords,
   expenseCategories,
   categoriesById,
+  cards,
   period,
   referenceMonth,
   now,
@@ -65,13 +68,14 @@ export function RecurringPaymentsManager({
   paymentRecords: PaymentRecord[];
   expenseCategories: Category[];
   categoriesById: Map<string, Category>;
+  cards: CardEntity[];
   period: MonthPeriod;
   referenceMonth: string;
   now: Date;
 }) {
   const router = useRouter();
   const [editState, setEditState] = useState<EditDialogState | null>(null);
-  const [payTarget, setPayTarget] = useState<RecurringPayment | null>(null);
+  const [payTarget, setPayTarget] = useState<{ payment: RecurringPayment; record?: PaymentRecord } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RecurringPayment | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -88,19 +92,19 @@ export function RecurringPaymentsManager({
         payment.due_day,
         period.year,
         period.month - 1,
-        record?.status === "paid",
+        record?.status === "paid" ? "paid" : record?.status === "partial" ? "partial" : null,
         now
       );
       return { payment, record, info };
     })
     .sort((a, b) => a.info.dueDate.getTime() - b.info.dueDate.getTime());
 
+  const totalPaidCents = items
+    .filter((i) => i.info.status === "paid" || i.info.status === "partial")
+    .reduce((sum, i) => sum + (i.record?.amount_paid_cents ?? 0), 0);
   const totalPendingCents = items
     .filter((i) => i.payment.status === "active" && i.info.status !== "paid")
-    .reduce((sum, i) => sum + i.payment.amount_cents, 0);
-  const totalPaidCents = items
-    .filter((i) => i.info.status === "paid")
-    .reduce((sum, i) => sum + (i.record?.amount_paid_cents ?? i.payment.amount_cents), 0);
+    .reduce((sum, i) => sum + (i.payment.amount_cents - (i.record?.amount_paid_cents ?? 0)), 0);
 
   async function handleFormSubmit(values: RecurringPaymentFormValues) {
     if (!editState) return;
@@ -120,7 +124,7 @@ export function RecurringPaymentsManager({
 
   async function handleMarkPaid(values: MarkPaymentPaidFormValues) {
     if (!payTarget) return;
-    const result = await markPaymentPaidAction(payTarget.id, referenceMonth, values);
+    const result = await markPaymentPaidAction(payTarget.payment.id, referenceMonth, values);
     if (!result.success) {
       toast.error(result.message ?? "Não foi possível registrar o pagamento.");
       return;
@@ -198,11 +202,13 @@ export function RecurringPaymentsManager({
           />
         ) : (
           <ul className="space-y-3">
-            {items.map(({ payment, info }) => {
+            {items.map(({ payment, record, info }) => {
               const category = payment.category_id ? categoriesById.get(payment.category_id) : undefined;
               const badge = STATUS_BADGE[info.status];
               const isBusy = busyId === payment.id;
               const isPaused = payment.status === "paused";
+              const discountCents =
+                record?.amount_paid_cents != null ? computeDiscountCents(payment.amount_cents, record.amount_paid_cents) : null;
 
               return (
                 <li
@@ -217,6 +223,7 @@ export function RecurringPaymentsManager({
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-bold font-display truncate">{payment.description}</p>
                         <Badge variant={badge.variant}>{badge.label}</Badge>
+                        <Badge variant="neutral">{PAYMENT_TYPE_LABELS[payment.payment_type]}</Badge>
                         {isPaused && <Badge variant="neutral">Pausada</Badge>}
                         {info.status === "overdue" && (
                           <span className="inline-flex items-center gap-1 text-danger text-xs font-bold">
@@ -234,6 +241,18 @@ export function RecurringPaymentsManager({
                         <CategoryBadge name={category?.name ?? null} color={category?.color} icon={category?.icon} />
                         <span className="text-xs text-muted-foreground">Vencimento: {formatDateBR(info.dueDate)}</span>
                       </div>
+                      {record?.amount_paid_cents != null && (
+                        <div className="flex items-center gap-3 mt-1.5 flex-wrap text-xs text-muted-foreground">
+                          <span>Pago: {centsToBRL(record.amount_paid_cents)}</span>
+                          {discountCents !== null && discountCents !== 0 && (
+                            <span className={discountCents > 0 ? "text-success font-semibold" : "text-danger font-semibold"}>
+                              {discountCents > 0
+                                ? `Desconto: ${centsToBRL(discountCents)}`
+                                : `Acréscimo: ${centsToBRL(Math.abs(discountCents))}`}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <span className="text-xl font-bold font-display tabular-nums shrink-0">
@@ -247,8 +266,19 @@ export function RecurringPaymentsManager({
                         <Undo2 className="size-4" aria-hidden="true" />
                         Desfazer pagamento
                       </Button>
+                    ) : info.status === "partial" ? (
+                      <>
+                        <Button size="sm" variant="secondary" onClick={() => setPayTarget({ payment, record })}>
+                          <CheckCircle2 className="size-4" aria-hidden="true" />
+                          Atualizar pagamento
+                        </Button>
+                        <Button size="sm" variant="outline" loading={isBusy} onClick={() => handleUndo(payment)}>
+                          <Undo2 className="size-4" aria-hidden="true" />
+                          Desfazer
+                        </Button>
+                      </>
                     ) : (
-                      <Button size="sm" variant="secondary" disabled={isPaused} onClick={() => setPayTarget(payment)}>
+                      <Button size="sm" variant="secondary" disabled={isPaused} onClick={() => setPayTarget({ payment, record })}>
                         <CheckCircle2 className="size-4" aria-hidden="true" />
                         Marcar como pago
                       </Button>
@@ -316,12 +346,15 @@ export function RecurringPaymentsManager({
         >
           <RecurringPaymentForm
             expenseCategories={expenseCategories}
+            cards={cards}
             defaultValues={
               editState.mode === "edit" && editState.payment
                 ? {
                     description: editState.payment.description,
+                    paymentType: editState.payment.payment_type,
                     amountCents: editState.payment.amount_cents,
                     categoryId: editState.payment.category_id,
+                    cardId: editState.payment.card_id,
                     dueDay: editState.payment.due_day,
                     startDate: editState.payment.start_date,
                     endDate: editState.payment.end_date,
@@ -337,8 +370,12 @@ export function RecurringPaymentsManager({
       )}
 
       {payTarget && (
-        <Dialog open onOpenChange={(open) => !open && setPayTarget(null)} title={`Marcar "${payTarget.description}" como pago`}>
-          <MarkPaidForm defaultAmountCents={payTarget.amount_cents} onSubmit={handleMarkPaid} onCancel={() => setPayTarget(null)} />
+        <Dialog open onOpenChange={(open) => !open && setPayTarget(null)} title={`Registrar pagamento — ${payTarget.payment.description}`}>
+          <MarkPaidForm
+            defaultAmountCents={payTarget.record?.amount_paid_cents ?? payTarget.payment.amount_cents}
+            onSubmit={handleMarkPaid}
+            onCancel={() => setPayTarget(null)}
+          />
         </Dialog>
       )}
 

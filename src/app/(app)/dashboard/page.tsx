@@ -18,6 +18,7 @@ import { centsToBRL } from "@/lib/formatters/currency";
 import { formatDateBR, nowInSaoPaulo } from "@/lib/formatters/date";
 import {
   Wallet,
+  Banknote,
   TrendingUp,
   TrendingDown,
   Clock,
@@ -53,6 +54,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     { data: paymentRecords, error: recordsError },
     { data: debts, error: debtsError },
     { data: goals, error: goalsError },
+    { data: incomes, error: incomesError },
   ] = await Promise.all([
     supabase.from("categories").select("*"),
     supabase
@@ -66,9 +68,10 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     supabase.from("payment_records").select("*").eq("reference_month", `${selectedMonthKey}-01`),
     supabase.from("debts").select("*").eq("status", "active"),
     supabase.from("savings_goals").select("*").in("status", ["active", "completed", "paused"]),
+    supabase.from("incomes").select("amount_cents").eq("reference_month", `${selectedMonthKey}-01`),
   ]);
 
-  const error = categoriesError || transactionsError || recurringError || recordsError || debtsError || goalsError;
+  const error = categoriesError || transactionsError || recurringError || recordsError || debtsError || goalsError || incomesError;
 
   if (error) {
     return (
@@ -105,12 +108,21 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const pendingItems = monthApplicablePayments
     .map((p) => {
       const record = recordsByPaymentId.get(p.id);
-      const info = computeRecurringPaymentMonthInfo(p.due_day, period.year, period.month - 1, record?.status === "paid", now);
-      return { payment: p, info };
+      const info = computeRecurringPaymentMonthInfo(
+        p.due_day,
+        period.year,
+        period.month - 1,
+        record?.status === "paid" ? "paid" : record?.status === "partial" ? "partial" : null,
+        now
+      );
+      return { payment: p, record, info };
     })
     .filter((i) => i.info.status !== "paid");
   const pendingCount = pendingItems.length;
-  const pendingTotalCents = pendingItems.reduce((sum, i) => sum + i.payment.amount_cents, 0);
+  const pendingTotalCents = pendingItems.reduce(
+    (sum, i) => sum + (i.payment.amount_cents - (i.record?.amount_paid_cents ?? 0)),
+    0
+  );
 
   const upcomingDue = (recurringPayments ?? [])
     .filter((p) => p.status === "active")
@@ -125,12 +137,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const savingsTotalCents = allGoals.reduce((sum, g) => sum + g.current_amount_cents, 0);
   const goalsForProgress = allGoals.filter((g) => g.status !== "paused").slice(0, 4);
 
+  const incomeTotalCents = (incomes ?? []).reduce((sum, i) => sum + i.amount_cents, 0);
+
   return (
     <div className="space-y-6">
       <PageHeader title="Dashboard" description="Visão geral das suas finanças no período selecionado." />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard label="Saldo do mês" value={centsToBRL(selectedTotals.balanceCents)} tone="primary" icon={Wallet} />
+        <MetricCard label="Renda do mês" value={centsToBRL(incomeTotalCents)} tone="secondary" icon={Banknote} />
         <MetricCard label="Receitas" value={centsToBRL(selectedTotals.incomeCents)} tone="success" icon={TrendingUp} />
         <MetricCard label="Despesas" value={centsToBRL(selectedTotals.expenseCents)} tone="danger" icon={TrendingDown} />
         <MetricCard

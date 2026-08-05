@@ -3,9 +3,13 @@
 
 export type TransactionType = "income" | "expense";
 export type RecurringPaymentStatus = "active" | "paused" | "finished";
-export type PaymentRecordStatus = "pending" | "paid" | "overdue";
+export type PaymentRecordStatus = "pending" | "paid" | "partial" | "overdue";
 export type DebtStatus = "active" | "paid";
 export type SavingsGoalStatus = "active" | "completed" | "paused";
+export type IncomeType = "fixed" | "variable";
+export type PaymentType = "fixed" | "temporary" | "variable";
+export type CardType = "credito" | "loja";
+export type InvoiceStatus = "aberta" | "paga";
 
 export interface Database {
   public: {
@@ -96,10 +100,12 @@ export interface Database {
           id: string;
           user_id: string;
           category_id: string | null;
+          card_id: string | null;
           description: string;
           amount_cents: number;
           due_day: number;
           frequency: "monthly";
+          payment_type: PaymentType;
           status: RecurringPaymentStatus;
           start_date: string;
           end_date: string | null;
@@ -111,10 +117,12 @@ export interface Database {
           id?: string;
           user_id: string;
           category_id?: string | null;
+          card_id?: string | null;
           description: string;
           amount_cents: number;
           due_day: number;
           frequency?: "monthly";
+          payment_type?: PaymentType;
           status?: RecurringPaymentStatus;
           start_date: string;
           end_date?: string | null;
@@ -122,9 +130,11 @@ export interface Database {
         };
         Update: {
           category_id?: string | null;
+          card_id?: string | null;
           description?: string;
           amount_cents?: number;
           due_day?: number;
+          payment_type?: PaymentType;
           status?: RecurringPaymentStatus;
           start_date?: string;
           end_date?: string | null;
@@ -170,6 +180,8 @@ export interface Database {
           current_balance_cents: number;
           interest_rate: number | null;
           minimum_payment_cents: number | null;
+          installment_amount_cents: number | null;
+          total_installments: number | null;
           due_day: number | null;
           status: DebtStatus;
           notes: string | null;
@@ -185,6 +197,8 @@ export interface Database {
           current_balance_cents: number;
           interest_rate?: number | null;
           minimum_payment_cents?: number | null;
+          installment_amount_cents?: number | null;
+          total_installments?: number | null;
           due_day?: number | null;
           status?: DebtStatus;
           notes?: string | null;
@@ -194,6 +208,8 @@ export interface Database {
           creditor?: string | null;
           interest_rate?: number | null;
           minimum_payment_cents?: number | null;
+          installment_amount_cents?: number | null;
+          total_installments?: number | null;
           due_day?: number | null;
           status?: DebtStatus;
           notes?: string | null;
@@ -272,6 +288,125 @@ export interface Database {
           notes?: string | null;
         };
         Update: Record<string, never>;
+        Relationships: [];
+      };
+      incomes: {
+        Row: {
+          id: string;
+          user_id: string;
+          description: string;
+          type: IncomeType;
+          amount_cents: number;
+          reference_month: string;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          description: string;
+          type: IncomeType;
+          amount_cents: number;
+          reference_month: string;
+          notes?: string | null;
+        };
+        Update: {
+          description?: string;
+          type?: IncomeType;
+          amount_cents?: number;
+          reference_month?: string;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
+      cards: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          card_type: CardType;
+          closing_day: number | null;
+          due_day: number | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          card_type: CardType;
+          closing_day?: number | null;
+          due_day?: number | null;
+          notes?: string | null;
+        };
+        Update: {
+          name?: string;
+          card_type?: CardType;
+          closing_day?: number | null;
+          due_day?: number | null;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
+      invoices: {
+        Row: {
+          id: string;
+          user_id: string;
+          card_id: string;
+          reference_month: string;
+          attachment_path: string | null;
+          status: InvoiceStatus;
+          paid_at: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          card_id: string;
+          reference_month: string;
+          attachment_path?: string | null;
+          status?: InvoiceStatus;
+          paid_at?: string | null;
+          notes?: string | null;
+        };
+        Update: {
+          attachment_path?: string | null;
+          status?: InvoiceStatus;
+          paid_at?: string | null;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
+      invoice_items: {
+        Row: {
+          id: string;
+          user_id: string;
+          invoice_id: string;
+          description: string;
+          amount_cents: number;
+          installment_current: number | null;
+          installment_total: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          invoice_id: string;
+          description: string;
+          amount_cents: number;
+          installment_current?: number | null;
+          installment_total?: number | null;
+        };
+        Update: {
+          description?: string;
+          amount_cents?: number;
+          installment_current?: number | null;
+          installment_total?: number | null;
+        };
         Relationships: [];
       };
     };

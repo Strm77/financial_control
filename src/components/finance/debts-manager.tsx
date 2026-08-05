@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, HandCoins, History, CheckCircle2 } from "lucide-react";
+import { Plus, Pencil, Trash2, HandCoins, History, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,8 +16,10 @@ import { DebtForm } from "@/components/finance/debt-form";
 import { DebtPaymentForm } from "@/components/finance/debt-payment-form";
 import { createDebtAction, updateDebtAction, deleteDebtAction, registerDebtPaymentAction, listDebtPaymentsAction } from "@/lib/actions/debts";
 import { centsToBRL } from "@/lib/formatters/currency";
-import { formatDateBR } from "@/lib/formatters/date";
+import { formatDateBR, nowInSaoPaulo } from "@/lib/formatters/date";
 import { computeGoalProgress } from "@/lib/finance/goals";
+import { computeInstallmentProgress } from "@/lib/finance/payment-progress";
+import { nextDueDate } from "@/lib/finance/due-dates";
 import type { DebtFormValues, DebtPaymentFormValues } from "@/lib/validations/debt";
 import type { Debt, DebtPayment } from "@/types/entities";
 
@@ -26,7 +28,13 @@ interface EditState {
   debt?: Debt;
 }
 
-export function DebtsManager({ debts }: { debts: Debt[] }) {
+export function DebtsManager({
+  debts,
+  paidInstallmentsByDebtId,
+}: {
+  debts: Debt[];
+  paidInstallmentsByDebtId: Record<string, number>;
+}) {
   const router = useRouter();
   const [editState, setEditState] = useState<EditState | null>(null);
   const [payTarget, setPayTarget] = useState<Debt | null>(null);
@@ -92,6 +100,11 @@ export function DebtsManager({ debts }: { debts: Debt[] }) {
 
   function renderDebtCard(debt: Debt) {
     const progress = computeGoalProgress(debt.original_amount_cents - debt.current_balance_cents, debt.original_amount_cents);
+    const paidInstallments = paidInstallmentsByDebtId[debt.id] ?? 0;
+    const installmentProgress =
+      debt.total_installments !== null ? computeInstallmentProgress(paidInstallments, debt.total_installments) : null;
+    const due = debt.status === "active" && debt.due_day !== null ? nextDueDate(debt.due_day, nowInSaoPaulo()) : null;
+
     return (
       <li key={debt.id} className="border-brutal rounded-brutal p-4 bg-background-alt">
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -104,6 +117,18 @@ export function DebtsManager({ debts }: { debts: Debt[] }) {
                   Quitada
                 </Badge>
               )}
+              {installmentProgress && (
+                <Badge variant="neutral">
+                  Parcela {installmentProgress.currentInstallment} de {installmentProgress.totalInstallments}
+                </Badge>
+              )}
+              {due && due.urgency === "overdue" && (
+                <Badge variant="danger">
+                  <AlertTriangle className="size-3.5" aria-hidden="true" />
+                  Atrasada
+                </Badge>
+              )}
+              {due && (due.urgency === "today" || due.urgency === "soon") && <Badge variant="warning">Vence em breve</Badge>}
             </div>
             {debt.creditor && <p className="text-xs text-muted-foreground mt-0.5">{debt.creditor}</p>}
           </div>
@@ -121,7 +146,9 @@ export function DebtsManager({ debts }: { debts: Debt[] }) {
         <div className="flex flex-wrap gap-x-5 gap-y-1 mt-3 text-xs text-muted-foreground">
           {debt.interest_rate !== null && <span>Juros: {debt.interest_rate}% (informativo)</span>}
           {debt.minimum_payment_cents !== null && <span>Mínimo: {centsToBRL(debt.minimum_payment_cents)}</span>}
+          {debt.installment_amount_cents !== null && <span>Parcela: {centsToBRL(debt.installment_amount_cents)}</span>}
           {debt.due_day !== null && <span>Vencimento: dia {debt.due_day}</span>}
+          {due && <span>Próximo vencimento: {formatDateBR(due.dueDate)}</span>}
         </div>
 
         <div className="flex flex-wrap items-center gap-2 mt-3.5 pt-3.5 border-t border-border/40">
@@ -202,6 +229,8 @@ export function DebtsManager({ debts }: { debts: Debt[] }) {
                     originalAmountCents: editState.debt.original_amount_cents,
                     interestRate: editState.debt.interest_rate,
                     minimumPaymentCents: editState.debt.minimum_payment_cents,
+                    installmentAmountCents: editState.debt.installment_amount_cents,
+                    totalInstallments: editState.debt.total_installments,
                     dueDay: editState.debt.due_day,
                     notes: editState.debt.notes,
                   }
@@ -216,7 +245,16 @@ export function DebtsManager({ debts }: { debts: Debt[] }) {
 
       {payTarget && (
         <Dialog open onOpenChange={(open) => !open && setPayTarget(null)} title={`Registrar pagamento — ${payTarget.name}`}>
-          <DebtPaymentForm currentBalanceCents={payTarget.current_balance_cents} onSubmit={handlePayment} onCancel={() => setPayTarget(null)} />
+          <DebtPaymentForm
+            currentBalanceCents={payTarget.current_balance_cents}
+            defaultAmountCents={
+              payTarget.installment_amount_cents
+                ? Math.min(payTarget.installment_amount_cents, payTarget.current_balance_cents)
+                : undefined
+            }
+            onSubmit={handlePayment}
+            onCancel={() => setPayTarget(null)}
+          />
         </Dialog>
       )}
 

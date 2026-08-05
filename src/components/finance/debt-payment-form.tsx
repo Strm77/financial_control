@@ -14,11 +14,12 @@ import { toDateOnlyString } from "@/lib/formatters/date";
 
 export interface DebtPaymentFormProps {
   currentBalanceCents: number;
+  defaultAmountCents?: number;
   onSubmit: (values: DebtPaymentFormValues) => Promise<void>;
   onCancel: () => void;
 }
 
-export function DebtPaymentForm({ currentBalanceCents, onSubmit, onCancel }: DebtPaymentFormProps) {
+export function DebtPaymentForm({ currentBalanceCents, defaultAmountCents, onSubmit, onCancel }: DebtPaymentFormProps) {
   const {
     control,
     register,
@@ -27,7 +28,7 @@ export function DebtPaymentForm({ currentBalanceCents, onSubmit, onCancel }: Deb
   } = useForm<DebtPaymentFormValues>({
     resolver: zodResolver(debtPaymentSchema),
     defaultValues: {
-      amountCents: 0,
+      amountCents: defaultAmountCents ?? 0,
       paymentDate: toDateOnlyString(new Date()),
       notes: "",
     },

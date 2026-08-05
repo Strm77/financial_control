@@ -19,19 +19,24 @@ export default async function PagamentosPage({ searchParams }: PagamentosPagePro
 
   const supabase = await createClient();
 
-  const [{ data: categories, error: categoriesError }, { data: recurringPayments, error: recurringError }, { data: paymentRecords, error: recordsError }] =
-    await Promise.all([
-      supabase.from("categories").select("*").eq("type", "expense").order("name"),
-      supabase.from("recurring_payments").select("*").order("due_day", { ascending: true }),
-      supabase.from("payment_records").select("*").eq("reference_month", referenceMonth),
-    ]);
+  const [
+    { data: categories, error: categoriesError },
+    { data: recurringPayments, error: recurringError },
+    { data: paymentRecords, error: recordsError },
+    { data: cards, error: cardsError },
+  ] = await Promise.all([
+    supabase.from("categories").select("*").eq("type", "expense").order("name"),
+    supabase.from("recurring_payments").select("*").order("due_day", { ascending: true }),
+    supabase.from("payment_records").select("*").eq("reference_month", referenceMonth),
+    supabase.from("cards").select("*").order("name"),
+  ]);
 
-  const error = categoriesError || recurringError || recordsError;
+  const error = categoriesError || recurringError || recordsError || cardsError;
   const categoriesById = new Map<string, Category>((categories ?? []).map((c: Category) => [c.id, c]));
 
   return (
     <div>
-      <PageHeader title="Pagamentos" description="Acompanhe suas cobranças recorrentes mês a mês." />
+      <PageHeader title="Pagamentos" description="Controle suas cobranças fixas, temporárias e variáveis mês a mês." />
 
       {error ? (
         <ErrorState description="Não foi possível carregar seus pagamentos." />
@@ -41,6 +46,7 @@ export default async function PagamentosPage({ searchParams }: PagamentosPagePro
           paymentRecords={paymentRecords ?? []}
           expenseCategories={categories ?? []}
           categoriesById={categoriesById}
+          cards={cards ?? []}
           period={period}
           referenceMonth={referenceMonth}
           now={nowInSaoPaulo()}

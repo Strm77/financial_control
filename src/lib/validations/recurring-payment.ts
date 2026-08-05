@@ -1,10 +1,18 @@
 import { z } from "zod";
 
+export const PAYMENT_TYPE_LABELS = {
+  fixed: "Fixa",
+  temporary: "Temporária",
+  variable: "Variável",
+} as const;
+
 export const recurringPaymentSchema = z
   .object({
     description: z.string().trim().min(1, "Informe uma descrição").max(140, "Descrição muito longa"),
+    paymentType: z.enum(["fixed", "temporary", "variable"], { message: "Selecione o tipo" }),
     amountCents: z.number({ message: "Informe um valor" }).int().positive("O valor deve ser maior que zero"),
     categoryId: z.string().uuid().nullable().optional(),
+    cardId: z.string().uuid().nullable().optional(),
     dueDay: z
       .number({ message: "Informe o dia de vencimento" })
       .int()

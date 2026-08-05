@@ -8,6 +8,7 @@ import {
   type RecurringPaymentFormValues,
   type MarkPaymentPaidFormValues,
 } from "@/lib/validations/recurring-payment";
+import { inferPaymentStatus } from "@/lib/finance/payment-progress";
 import type { ActionResult, RecurringPayment } from "@/types/entities";
 import type { RecurringPaymentStatus } from "@/types/database";
 
@@ -34,7 +35,9 @@ export async function createRecurringPaymentAction(
     .insert({
       user_id: user.id,
       category_id: parsed.data.categoryId ?? null,
+      card_id: parsed.data.cardId ?? null,
       description: parsed.data.description,
+      payment_type: parsed.data.paymentType,
       amount_cents: parsed.data.amountCents,
       due_day: parsed.data.dueDay,
       start_date: parsed.data.startDate,
@@ -67,7 +70,9 @@ export async function updateRecurringPaymentAction(
     .from("recurring_payments")
     .update({
       category_id: parsed.data.categoryId ?? null,
+      card_id: parsed.data.cardId ?? null,
       description: parsed.data.description,
+      payment_type: parsed.data.paymentType,
       amount_cents: parsed.data.amountCents,
       due_day: parsed.data.dueDay,
       start_date: parsed.data.startDate,
@@ -131,6 +136,19 @@ export async function markPaymentPaidAction(
   const { supabase, user } = await requireUser();
   if (!user) return { success: false, message: SESSION_EXPIRED_MESSAGE };
 
+  const { data: recurringPayment, error: fetchError } = await supabase
+    .from("recurring_payments")
+    .select("amount_cents")
+    .eq("id", recurringPaymentId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (fetchError || !recurringPayment) {
+    return { success: false, message: "Cobrança não encontrada." };
+  }
+
+  const status = inferPaymentStatus(recurringPayment.amount_cents, parsed.data.amountPaidCents);
+
   const { error } = await supabase.from("payment_records").upsert(
     {
       user_id: user.id,
@@ -138,7 +156,7 @@ export async function markPaymentPaidAction(
       reference_month: referenceMonth,
       paid_at: parsed.data.paidAt,
       amount_paid_cents: parsed.data.amountPaidCents,
-      status: "paid",
+      status,
     },
     { onConflict: "recurring_payment_id,reference_month" }
   );

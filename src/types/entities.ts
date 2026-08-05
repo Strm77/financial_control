@@ -9,6 +9,10 @@ export type Debt = Database["public"]["Tables"]["debts"]["Row"];
 export type DebtPayment = Database["public"]["Tables"]["debt_payments"]["Row"];
 export type SavingsGoal = Database["public"]["Tables"]["savings_goals"]["Row"];
 export type SavingsContribution = Database["public"]["Tables"]["savings_contributions"]["Row"];
+export type Income = Database["public"]["Tables"]["incomes"]["Row"];
+export type Card = Database["public"]["Tables"]["cards"]["Row"];
+export type Invoice = Database["public"]["Tables"]["invoices"]["Row"];
+export type InvoiceItem = Database["public"]["Tables"]["invoice_items"]["Row"];
 
 export interface ActionResult<T = undefined> {
   success: boolean;

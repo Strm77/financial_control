@@ -32,6 +32,8 @@ export function DebtForm({ mode, defaultValues, onSubmit, onCancel, submitLabel 
       originalAmountCents: defaultValues?.originalAmountCents ?? 0,
       interestRate: defaultValues?.interestRate ?? null,
       minimumPaymentCents: defaultValues?.minimumPaymentCents ?? null,
+      installmentAmountCents: defaultValues?.installmentAmountCents ?? null,
+      totalInstallments: defaultValues?.totalInstallments ?? null,
       dueDay: defaultValues?.dueDay ?? null,
       notes: defaultValues?.notes ?? "",
     },
@@ -102,8 +104,36 @@ export function DebtForm({ mode, defaultValues, onSubmit, onCancel, submitLabel 
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="installmentAmountCents">Valor da parcela (opcional)</Label>
+          <Controller
+            control={control}
+            name="installmentAmountCents"
+            render={({ field }) => (
+              <CurrencyInput
+                id="installmentAmountCents"
+                valueCents={field.value ?? null}
+                onValueChange={(cents) => field.onChange(cents || null)}
+              />
+            )}
+          />
+          <FieldError message={errors.installmentAmountCents?.message} />
+        </div>
+        <div>
+          <Label htmlFor="totalInstallments">Número total de parcelas (opcional)</Label>
+          <Input
+            id="totalInstallments"
+            type="number"
+            min={1}
+            {...register("totalInstallments", { setValueAs: (v) => (v === "" ? null : Number(v)) })}
+          />
+          <FieldError message={errors.totalInstallments?.message} />
+        </div>
+      </div>
+
       <div>
-        <Label htmlFor="dueDay">Dia de vencimento (opcional)</Label>
+        <Label htmlFor="dueDay">Dia de vencimento da parcela (opcional)</Label>
         <Input
           id="dueDay"
           type="number"
@@ -111,6 +141,9 @@ export function DebtForm({ mode, defaultValues, onSubmit, onCancel, submitLabel 
           max={31}
           {...register("dueDay", { setValueAs: (v) => (v === "" ? null : Number(v)) })}
         />
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          O dia do mês em que a parcela vence (ex: 10). O app calcula sozinho o próximo vencimento a cada mês.
+        </p>
         <FieldError message={errors.dueDay?.message} />
       </div>
 

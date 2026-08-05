@@ -9,6 +9,8 @@ export const debtSchema = z.object({
     .positive("O valor deve ser maior que zero"),
   interestRate: z.number().min(0, "A taxa não pode ser negativa").nullable().optional(),
   minimumPaymentCents: z.number().int().positive("O valor deve ser maior que zero").nullable().optional(),
+  installmentAmountCents: z.number().int().positive("O valor deve ser maior que zero").nullable().optional(),
+  totalInstallments: z.number().int().positive("Informe um número de parcelas válido").nullable().optional(),
   dueDay: z.number().int().min(1, "O dia deve ser entre 1 e 31").max(31, "O dia deve ser entre 1 e 31").nullable().optional(),
   notes: z.string().trim().max(500, "Observação muito longa").nullable().optional(),
 });

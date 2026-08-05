@@ -24,6 +24,8 @@ export async function createDebtAction(values: DebtFormValues): Promise<ActionRe
       current_balance_cents: parsed.data.originalAmountCents,
       interest_rate: parsed.data.interestRate ?? null,
       minimum_payment_cents: parsed.data.minimumPaymentCents ?? null,
+      installment_amount_cents: parsed.data.installmentAmountCents ?? null,
+      total_installments: parsed.data.totalInstallments ?? null,
       due_day: parsed.data.dueDay ?? null,
       notes: parsed.data.notes ?? null,
     })
@@ -53,6 +55,8 @@ export async function updateDebtAction(id: string, values: DebtFormValues): Prom
       creditor: parsed.data.creditor ?? null,
       interest_rate: parsed.data.interestRate ?? null,
       minimum_payment_cents: parsed.data.minimumPaymentCents ?? null,
+      installment_amount_cents: parsed.data.installmentAmountCents ?? null,
+      total_installments: parsed.data.totalInstallments ?? null,
       due_day: parsed.data.dueDay ?? null,
       notes: parsed.data.notes ?? null,
     })
