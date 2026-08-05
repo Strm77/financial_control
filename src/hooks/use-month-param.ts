@@ -2,22 +2,9 @@
 
 import { useCallback, useMemo } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { nowInSaoPaulo } from "@/lib/formatters/date";
-import { keyToMonthPeriod, monthPeriodToKey, type MonthPeriod } from "@/lib/finance/month";
+import { monthPeriodToKey, parseMonthParam, type MonthPeriod } from "@/lib/finance/month";
 
 const MONTH_PARAM = "mes";
-
-export function currentMonthPeriod(): MonthPeriod {
-  const now = nowInSaoPaulo();
-  return { year: now.getFullYear(), month: now.getMonth() + 1 };
-}
-
-export function parseMonthParam(value: string | undefined | null): MonthPeriod {
-  if (value && /^\d{4}-\d{2}$/.test(value)) {
-    return keyToMonthPeriod(value);
-  }
-  return currentMonthPeriod();
-}
 
 /** Lê e atualiza o período de mês/ano selecionado via query string (`?mes=YYYY-MM`). */
 export function useMonthParam(): [MonthPeriod, (period: MonthPeriod) => void] {

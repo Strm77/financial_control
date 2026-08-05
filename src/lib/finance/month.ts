@@ -1,7 +1,23 @@
+import { nowInSaoPaulo } from "@/lib/formatters/date";
+
 /** Representa um período de mês/ano usado nos filtros globais da aplicação. */
 export interface MonthPeriod {
   year: number;
   month: number; // 1-12
+}
+
+/** Mês/ano atual, calculado a partir do horário de São Paulo. */
+export function currentMonthPeriod(): MonthPeriod {
+  const now = nowInSaoPaulo();
+  return { year: now.getFullYear(), month: now.getMonth() + 1 };
+}
+
+/** Interpreta o valor da query string `?mes=YYYY-MM`, com fallback para o mês atual. */
+export function parseMonthParam(value: string | undefined | null): MonthPeriod {
+  if (value && /^\d{4}-\d{2}$/.test(value)) {
+    return keyToMonthPeriod(value);
+  }
+  return currentMonthPeriod();
 }
 
 export function monthPeriodToKey(period: MonthPeriod): string {

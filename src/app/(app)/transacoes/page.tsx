@@ -2,8 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorState } from "@/components/ui/error-state";
 import { TransactionsManager } from "@/components/finance/transactions-manager";
-import { parseMonthParam } from "@/hooks/use-month-param";
-import { monthPeriodRange } from "@/lib/finance/month";
+import { parseMonthParam, monthPeriodRange } from "@/lib/finance/month";
 
 export const metadata = { title: "Transações — Financeiro Pessoal" };
 

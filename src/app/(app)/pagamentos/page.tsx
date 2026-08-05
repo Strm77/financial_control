@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { ErrorState } from "@/components/ui/error-state";
 import { RecurringPaymentsManager } from "@/components/finance/recurring-payments-manager";
-import { parseMonthParam } from "@/hooks/use-month-param";
+import { parseMonthParam } from "@/lib/finance/month";
 import { nowInSaoPaulo } from "@/lib/formatters/date";
 import type { Category } from "@/types/entities";
 
