@@ -14,7 +14,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         ref={ref}
         aria-invalid={invalid || undefined}
         className={cn(
-          "w-full h-11 pl-3 pr-9 rounded-brutal border-brutal bg-card text-card-foreground appearance-none",
+          "w-full h-11 pl-3 pr-9 neu-rounded neu-surface bg-card text-card-foreground appearance-none",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           invalid && "border-danger",
           className

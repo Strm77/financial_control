@@ -10,9 +10,9 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden md:flex md:flex-col md:w-64 md:shrink-0 border-r-[3px] border-r-border bg-card min-h-screen sticky top-0">
-      <div className="flex items-center gap-2.5 px-5 py-6 border-b-[3px] border-b-border">
-        <div className="size-10 rounded-brutal border-brutal bg-primary text-primary-foreground grid place-items-center shrink-0">
+    <aside className="hidden md:flex md:flex-col md:w-64 md:shrink-0 bg-card neu-shadow-lg min-h-screen sticky top-0 z-10">
+      <div className="flex items-center gap-2.5 px-5 py-6">
+        <div className="size-10 neu-rounded neu-surface bg-primary text-primary-foreground grid place-items-center shrink-0">
           <Wallet className="size-5" aria-hidden="true" />
         </div>
         <span className="font-display font-bold text-lg leading-tight">Financeiro Pessoal</span>
@@ -28,9 +28,9 @@ export function Sidebar() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex items-center gap-3 px-3.5 h-11 rounded-brutal border-brutal font-semibold text-sm press-brutal",
+                "flex items-center gap-3 px-3.5 h-11 neu-rounded neu-surface font-semibold text-sm neu-press",
                 active
-                  ? "bg-primary text-primary-foreground shadow-brutal-sm"
+                  ? "bg-primary text-primary-foreground neu-shadow-sm"
                   : "bg-transparent border-transparent shadow-none hover:bg-muted"
               )}
             >

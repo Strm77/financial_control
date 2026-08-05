@@ -210,7 +210,7 @@ export function RecurringPaymentsManager({
           type="button"
           aria-label="Editar"
           onClick={() => setEditState({ mode: "edit", payment })}
-          className="size-8 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+          className="size-8 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
         >
           <Pencil className="size-3.5" aria-hidden="true" />
         </button>
@@ -220,7 +220,7 @@ export function RecurringPaymentsManager({
             type="button"
             aria-label="Reativar"
             onClick={() => handleStatusChange(payment, "active")}
-            className="size-8 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+            className="size-8 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
           >
             <Play className="size-3.5" aria-hidden="true" />
           </button>
@@ -229,7 +229,7 @@ export function RecurringPaymentsManager({
             type="button"
             aria-label="Pausar"
             onClick={() => handleStatusChange(payment, "paused")}
-            className="size-8 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+            className="size-8 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
           >
             <Pause className="size-3.5" aria-hidden="true" />
           </button>
@@ -239,7 +239,7 @@ export function RecurringPaymentsManager({
           type="button"
           aria-label="Encerrar cobrança"
           onClick={() => handleStatusChange(payment, "finished")}
-          className="size-8 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+          className="size-8 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
         >
           <CircleOff className="size-3.5" aria-hidden="true" />
         </button>
@@ -248,7 +248,7 @@ export function RecurringPaymentsManager({
           type="button"
           aria-label="Excluir"
           onClick={() => setDeleteTarget(payment)}
-          className="size-8 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+          className="size-8 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
         >
           <Trash2 className="size-3.5" aria-hidden="true" />
         </button>
@@ -297,10 +297,10 @@ export function RecurringPaymentsManager({
         ) : (
           <>
             {/* Desktop: tabela compacta */}
-            <div className="hidden lg:block overflow-x-auto brutal-scroll">
+            <div className="hidden lg:block overflow-x-auto neu-scroll">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left border-b-[3px] border-b-border">
+                  <tr className="text-left border-b border-border/70">
                     <th className="py-2 pr-3 font-bold">Descrição</th>
                     <th className="py-2 pr-3 font-bold">Categoria</th>
                     <th className="py-2 pr-3 font-bold">Vencimento</th>
@@ -379,7 +379,7 @@ export function RecurringPaymentsManager({
                 return (
                   <li
                     key={payment.id}
-                    className={cn("border-brutal rounded-brutal p-3 bg-background-alt", isPaused && "opacity-60")}
+                    className={cn("neu-surface neu-rounded p-3 bg-background-alt", isPaused && "opacity-60")}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">

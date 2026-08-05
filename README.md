@@ -2,7 +2,7 @@
 
 Aplicativo web de gerenciamento financeiro pessoal para **dois usuários previamente cadastrados**, com isolamento de dados garantido pelo PostgreSQL via **Row Level Security (RLS)** — não apenas por filtros no frontend.
 
-Construído com Next.js 16 (App Router), React 19, TypeScript estrito, Tailwind CSS, Supabase (Postgres + Auth), React Hook Form, Zod, Recharts e um design system próprio em estilo **Neo Brutalism**.
+Construído com Next.js 16 (App Router), React 19, TypeScript estrito, Tailwind CSS, Supabase (Postgres + Auth), React Hook Form, Zod, Recharts e um design system próprio em estilo **Neumorfismo**, com dark mode e animações.
 
 ## Stack
 
@@ -335,15 +335,16 @@ Cobre as funções puras mais importantes (`src/lib/formatters` e `src/lib/finan
 - cálculo de parcela atual/total de dívidas e compras parceladas;
 - inferência automática de status pago/parcial e cálculo de desconto no Controle de Pagamento.
 
-## Design: Neo Brutalism
+## Design: Neumorfismo
 
-Tokens de design (cores, bordas, sombras) ficam em `src/app/globals.css` como CSS custom properties (`--background`, `--primary`, `--border`, `--shadow` etc.), consumidas pelo Tailwind via `@theme inline`. Características:
+Tokens de design (cores, sombras, raios) ficam em `src/app/globals.css` como CSS custom properties (`--background`, `--primary`, `--shadow-flat`, `--shadow-inset` etc.), consumidas pelo Tailwind via `@theme inline`. Características:
 
-- bordas pretas grossas (3px) e sombras duras sem blur (`box-shadow: 5px 5px 0 0 var(--border)`);
-- sem gradientes, sem glassmorphism, sem sombras suaves;
-- hover "empurra" o elemento (reduz deslocamento/sombra) via a classe utilitária `.press-brutal`;
-- foco de teclado sempre visível (`outline` de 3px em `--secondary`);
-- suporte a tema claro/escuro via `data-theme` no elemento raiz.
+- superfícies "extrudadas" ou "afundadas" a partir do próprio fundo, usando pares de sombra clara/escura (`--neu-light` / `--neu-dark`) em vez de bordas duras — classes utilitárias `.neu-surface`, `.neu-shadow`/`-sm`/`-lg`/`-inset`;
+- cantos bem arredondados (`--radius: 20px`) e paleta de baixo contraste, sem gradientes nem glassmorphism;
+- hover/press aprofunda ou eleva a sombra via a classe utilitária `.neu-press`, em vez de deslocar o elemento;
+- micro-animações discretas: entrada de conteúdo (`.animate-fade-in-up`), abertura/fechamento de modais (`.animate-overlay`, `.animate-dialog`) dirigidas pelo atributo `data-state` do Radix UI, todas desativadas automaticamente quando o usuário prefere movimento reduzido (`prefers-reduced-motion`);
+- foco de teclado sempre visível (`outline` em `--secondary`);
+- **dark mode** funcional via atributo `data-theme` no elemento `<html>`, com paleta própria (`:root[data-theme="dark"]`), alternância manual pelo botão de sol/lua no cabeçalho, persistência em `localStorage` e um script inline no `<head>` (ver `src/app/layout.tsx`) que aplica o tema antes da primeira pintura para evitar flash de conteúdo (segue o padrão oficial do Next.js para prevenção de flash antes da hidratação).
 
 ## Limitações conhecidas do MVP
 

@@ -93,7 +93,7 @@ export function IncomesManager({ incomes, referenceMonth }: { incomes: Income[];
         ) : (
           <ul className="space-y-2">
             {incomes.map((income) => (
-              <li key={income.id} className="flex items-center justify-between gap-3 border-brutal rounded-brutal px-3 py-2.5 bg-background-alt">
+              <li key={income.id} className="flex items-center justify-between gap-3 neu-surface neu-rounded px-3 py-2.5 bg-background-alt">
                 <div className="min-w-0 flex items-center gap-2.5">
                   <Badge variant={income.type === "fixed" ? "secondary" : "neutral"}>{INCOME_TYPE_LABELS[income.type]}</Badge>
                   <span className="font-semibold truncate">{income.description}</span>
@@ -104,7 +104,7 @@ export function IncomesManager({ incomes, referenceMonth }: { incomes: Income[];
                     type="button"
                     aria-label={`Editar ${income.description}`}
                     onClick={() => setDialogState({ mode: "edit", income })}
-                    className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                    className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                   >
                     <Pencil className="size-4" aria-hidden="true" />
                   </button>
@@ -112,7 +112,7 @@ export function IncomesManager({ incomes, referenceMonth }: { incomes: Income[];
                     type="button"
                     aria-label={`Excluir ${income.description}`}
                     onClick={() => setDeleteTarget(income)}
-                    className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                    className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                   >
                     <Trash2 className="size-4" aria-hidden="true" />
                   </button>

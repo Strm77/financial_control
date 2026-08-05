@@ -5,14 +5,14 @@ export function LoadingSkeleton({ className }: { className?: string }) {
     <div
       role="status"
       aria-label="Carregando"
-      className={cn("rounded-brutal border-brutal bg-muted animate-skeleton", className)}
+      className={cn("neu-rounded neu-surface bg-muted animate-skeleton", className)}
     />
   );
 }
 
 export function CardSkeleton() {
   return (
-    <div className="border-brutal rounded-brutal bg-card p-5 shadow-brutal space-y-3">
+    <div className="neu-surface neu-rounded bg-card p-5 neu-shadow space-y-3">
       <LoadingSkeleton className="h-4 w-24" />
       <LoadingSkeleton className="h-8 w-32" />
       <LoadingSkeleton className="h-3 w-full" />

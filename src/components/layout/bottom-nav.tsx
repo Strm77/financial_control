@@ -11,7 +11,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card border-t-[3px] border-t-border overflow-x-auto brutal-scroll"
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-card neu-shadow-lg overflow-x-auto neu-scroll"
     >
       <ul className="flex min-w-max">
         {NAV_ITEMS.map((item) => {

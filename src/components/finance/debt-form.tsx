@@ -78,7 +78,7 @@ export function DebtForm({ mode, defaultValues, onSubmit, onCancel, submitLabel 
       </div>
 
       {mode === "create" && (
-        <div className="border-brutal rounded-brutal bg-background-alt p-3.5 space-y-4">
+        <div className="neu-surface neu-rounded bg-background-alt p-3.5 space-y-4">
           <p className="text-xs font-semibold text-muted-foreground">
             Essa dívida já estava em andamento antes de você começar a controlar aqui? Preencha os campos abaixo. Se for uma dívida
             nova, pode deixar em branco.

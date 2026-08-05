@@ -108,11 +108,11 @@ export function CategoriesManager({
               return (
                 <li
                   key={category.id}
-                  className="flex items-center justify-between gap-3 border-brutal rounded-brutal px-3 py-2.5 bg-background-alt"
+                  className="flex items-center justify-between gap-3 neu-surface neu-rounded px-3 py-2.5 bg-background-alt"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <span
-                      className="size-8 rounded-brutal border-brutal grid place-items-center shrink-0"
+                      className="size-8 neu-rounded neu-surface grid place-items-center shrink-0"
                       style={{ backgroundColor: category.color ?? "#9ca3af" }}
                     >
                       <Icon className="size-4" aria-hidden="true" />
@@ -129,7 +129,7 @@ export function CategoriesManager({
                       type="button"
                       aria-label={`Editar ${category.name}`}
                       onClick={() => setDialogState({ mode: "edit", type, category })}
-                      className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                      className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                     >
                       <Pencil className="size-4" aria-hidden="true" />
                     </button>
@@ -137,7 +137,7 @@ export function CategoriesManager({
                       type="button"
                       aria-label={`Excluir ${category.name}`}
                       onClick={() => setDeleteTarget(category)}
-                      className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                      className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                     >
                       <Trash2 className="size-4" aria-hidden="true" />
                     </button>

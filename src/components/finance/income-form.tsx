@@ -78,7 +78,7 @@ export function IncomeForm({ defaultValues, onSubmit, onCancel, submitLabel = "S
               value={field.value ? field.value.slice(0, 7) : ""}
               onChange={(e) => field.onChange(e.target.value ? `${e.target.value}-01` : "")}
               className={cn(
-                "w-full h-11 px-3 rounded-brutal border-brutal bg-card text-card-foreground",
+                "w-full h-11 px-3 neu-rounded neu-surface bg-card text-card-foreground",
                 errors.referenceMonth && "border-danger"
               )}
             />

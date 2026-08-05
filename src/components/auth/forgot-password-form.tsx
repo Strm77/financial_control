@@ -36,7 +36,7 @@ export function ForgotPasswordForm() {
   return (
     <div className="w-full max-w-md">
       <div className="flex flex-col items-center gap-2 mb-8">
-        <div className="size-14 rounded-brutal border-brutal bg-secondary text-secondary-foreground shadow-brutal grid place-items-center">
+        <div className="size-14 neu-rounded neu-surface bg-secondary text-secondary-foreground neu-shadow grid place-items-center">
           <KeyRound className="size-7" aria-hidden="true" />
         </div>
         <h1 className="text-2xl font-bold font-display text-center">Recuperar senha</h1>
@@ -48,12 +48,12 @@ export function ForgotPasswordForm() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="bg-card border-brutal rounded-brutal shadow-brutal p-6 space-y-5"
+        className="bg-card neu-surface neu-rounded neu-shadow p-6 space-y-5"
       >
         {feedback && (
           <div
             role="alert"
-            className={`border-brutal rounded-brutal px-4 py-3 text-sm font-semibold ${
+            className={`neu-surface neu-rounded px-4 py-3 text-sm font-semibold ${
               feedback.type === "success" ? "bg-success text-success-foreground" : "bg-danger text-danger-foreground"
             }`}
           >

@@ -18,7 +18,7 @@ export function MonthPicker({ period, onChange, className }: MonthPickerProps) {
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 border-brutal rounded-brutal bg-card shadow-brutal-sm px-1 py-1",
+        "inline-flex items-center gap-1 neu-surface neu-rounded bg-card neu-shadow-sm px-1 py-1",
         className
       )}
     >
@@ -26,7 +26,7 @@ export function MonthPicker({ period, onChange, className }: MonthPickerProps) {
         type="button"
         aria-label="Mês anterior"
         onClick={() => onChange(shiftMonthPeriod(period, -1))}
-        className="size-9 grid place-items-center rounded-brutal hover:bg-muted press-brutal cursor-pointer"
+        className="size-9 grid place-items-center neu-rounded hover:bg-muted neu-press cursor-pointer"
       >
         <ChevronLeft className="size-4" aria-hidden="true" />
       </button>
@@ -37,7 +37,7 @@ export function MonthPicker({ period, onChange, className }: MonthPickerProps) {
         type="button"
         aria-label="Próximo mês"
         onClick={() => onChange(shiftMonthPeriod(period, 1))}
-        className="size-9 grid place-items-center rounded-brutal hover:bg-muted press-brutal cursor-pointer"
+        className="size-9 grid place-items-center neu-rounded hover:bg-muted neu-press cursor-pointer"
       >
         <ChevronRight className="size-4" aria-hidden="true" />
       </button>

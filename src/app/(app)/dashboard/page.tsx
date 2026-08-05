@@ -185,7 +185,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               {recentTransactions.map((t) => {
                 const category = t.category_id ? categoriesById.get(t.category_id) : undefined;
                 return (
-                  <li key={t.id} className="flex items-center justify-between gap-3 border-brutal rounded-brutal px-3 py-2.5 bg-background-alt">
+                  <li key={t.id} className="flex items-center justify-between gap-3 neu-surface neu-rounded px-3 py-2.5 bg-background-alt">
                     <div className="min-w-0 flex items-center gap-2">
                       {t.type === "income" ? (
                         <ArrowUpCircle className="size-4 text-success shrink-0" aria-hidden="true" />
@@ -222,7 +222,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           ) : (
             <ul className="space-y-2">
               {upcomingDue.map(({ payment, due }) => (
-                <li key={payment.id} className="flex items-center justify-between gap-3 border-brutal rounded-brutal px-3 py-2.5 bg-background-alt">
+                <li key={payment.id} className="flex items-center justify-between gap-3 neu-surface neu-rounded px-3 py-2.5 bg-background-alt">
                   <div className="min-w-0">
                     <p className="font-semibold truncate">{payment.description}</p>
                     <p className="text-xs text-muted-foreground">{formatDateBR(due.dueDate)}</p>
@@ -253,7 +253,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             {goalsForProgress.map((goal) => {
               const progress = computeGoalProgress(goal.current_amount_cents, goal.target_amount_cents);
               return (
-                <div key={goal.id} className="border-brutal rounded-brutal p-3.5 bg-background-alt">
+                <div key={goal.id} className="neu-surface neu-rounded p-3.5 bg-background-alt">
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <span className="font-semibold truncate">{goal.name}</span>
                     <span className="text-sm font-bold shrink-0">{progress.percent.toFixed(0)}%</span>

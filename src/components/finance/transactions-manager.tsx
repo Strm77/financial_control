@@ -174,10 +174,10 @@ export function TransactionsManager({
         ) : (
           <>
             {/* Desktop: tabela */}
-            <div className="hidden md:block overflow-x-auto brutal-scroll">
+            <div className="hidden md:block overflow-x-auto neu-scroll">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left border-b-[3px] border-b-border">
+                  <tr className="text-left border-b border-border/70">
                     <th className="py-2 pr-3 font-bold">Data</th>
                     <th className="py-2 pr-3 font-bold">Descrição</th>
                     <th className="py-2 pr-3 font-bold">Categoria</th>
@@ -210,7 +210,7 @@ export function TransactionsManager({
                               type="button"
                               aria-label={`Editar ${t.description}`}
                               onClick={() => setDialogState({ mode: "edit", transaction: t })}
-                              className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                              className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                             >
                               <Pencil className="size-4" aria-hidden="true" />
                             </button>
@@ -218,7 +218,7 @@ export function TransactionsManager({
                               type="button"
                               aria-label={`Excluir ${t.description}`}
                               onClick={() => setDeleteTarget(t)}
-                              className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                              className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                             >
                               <Trash2 className="size-4" aria-hidden="true" />
                             </button>
@@ -236,7 +236,7 @@ export function TransactionsManager({
               {transactions.map((t) => {
                 const category = t.category_id ? categoriesById.get(t.category_id) : undefined;
                 return (
-                  <li key={t.id} className="border-brutal rounded-brutal p-3 bg-background-alt">
+                  <li key={t.id} className="neu-surface neu-rounded p-3 bg-background-alt">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="font-semibold truncate">{t.description}</p>
@@ -253,7 +253,7 @@ export function TransactionsManager({
                           type="button"
                           aria-label={`Editar ${t.description}`}
                           onClick={() => setDialogState({ mode: "edit", transaction: t })}
-                          className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                          className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                         >
                           <Pencil className="size-4" aria-hidden="true" />
                         </button>
@@ -261,7 +261,7 @@ export function TransactionsManager({
                           type="button"
                           aria-label={`Excluir ${t.description}`}
                           onClick={() => setDeleteTarget(t)}
-                          className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                          className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                         >
                           <Trash2 className="size-4" aria-hidden="true" />
                         </button>
@@ -272,7 +272,7 @@ export function TransactionsManager({
               })}
             </ul>
 
-            <div className="flex items-center justify-between gap-3 mt-5 pt-4 border-t-[3px] border-t-border">
+            <div className="flex items-center justify-between gap-3 mt-5 pt-4 border-t border-border/70">
               <span className="text-sm text-muted-foreground">
                 Página {page} de {totalPages} · {totalCount} {totalCount === 1 ? "transação" : "transações"}
               </span>

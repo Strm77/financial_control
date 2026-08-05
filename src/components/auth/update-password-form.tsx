@@ -43,7 +43,7 @@ export function UpdatePasswordForm() {
   return (
     <div className="w-full max-w-md">
       <div className="flex flex-col items-center gap-2 mb-8">
-        <div className="size-14 rounded-brutal border-brutal bg-primary text-primary-foreground shadow-brutal grid place-items-center">
+        <div className="size-14 neu-rounded neu-surface bg-primary text-primary-foreground neu-shadow grid place-items-center">
           <ShieldCheck className="size-7" aria-hidden="true" />
         </div>
         <h1 className="text-2xl font-bold font-display text-center">Definir nova senha</h1>
@@ -53,10 +53,10 @@ export function UpdatePasswordForm() {
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="bg-card border-brutal rounded-brutal shadow-brutal p-6 space-y-5"
+        className="bg-card neu-surface neu-rounded neu-shadow p-6 space-y-5"
       >
         {formError && (
-          <div role="alert" className="border-brutal rounded-brutal bg-danger text-danger-foreground px-4 py-3 text-sm font-semibold">
+          <div role="alert" className="neu-surface neu-rounded bg-danger text-danger-foreground px-4 py-3 text-sm font-semibold">
             {formError}
           </div>
         )}

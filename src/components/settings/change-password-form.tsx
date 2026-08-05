@@ -70,7 +70,7 @@ export function ChangePasswordForm() {
             type="checkbox"
             checked={showPasswords}
             onChange={(e) => setShowPasswords(e.target.checked)}
-            className="size-4 rounded border-brutal accent-primary cursor-pointer"
+            className="size-4 rounded neu-surface accent-primary cursor-pointer"
           />
           {showPasswords ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
           Mostrar senhas

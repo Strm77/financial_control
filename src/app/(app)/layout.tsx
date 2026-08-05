@@ -27,10 +27,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="flex min-h-screen">
       <Sidebar />
       <div className="flex-1 min-w-0 flex flex-col pb-16 md:pb-0">
-        <Suspense fallback={<div className="h-16 border-b-[3px] border-b-border" />}>
+        <Suspense fallback={<div className="h-16 neu-shadow-sm" />}>
           <Header displayName={displayName} />
         </Suspense>
-        <main className="flex-1 px-4 sm:px-6 py-6">{children}</main>
+        <main className="flex-1 px-4 sm:px-6 py-6 animate-fade-in-up">{children}</main>
       </div>
       <BottomNav />
     </div>

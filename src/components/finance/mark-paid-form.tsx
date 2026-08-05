@@ -66,12 +66,12 @@ export function MarkPaidForm({ expectedAmountCents, defaultAmountCents, defaultH
           control={control}
           name="hasDiscount"
           render={({ field }) => (
-            <label className="flex items-start gap-3 border-brutal rounded-brutal bg-background-alt p-3.5 cursor-pointer select-none">
+            <label className="flex items-start gap-3 neu-surface neu-rounded bg-background-alt p-3.5 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={field.value ?? false}
                 onChange={(e) => field.onChange(e.target.checked)}
-                className="mt-0.5 size-4 rounded border-brutal accent-primary cursor-pointer"
+                className="mt-0.5 size-4 rounded neu-surface accent-primary cursor-pointer"
               />
               <span>
                 <span className="block text-sm font-bold">Possui desconto?</span>

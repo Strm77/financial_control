@@ -1,83 +1,104 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------- */
-/* Design tokens — Neo Brutalism                                          */
+/* Design tokens — Neumorfismo "Dona Grana"                               */
+/* Paleta ancorada em tons de dinheiro/crescimento (verde esmeralda +     */
+/* pergaminho quente), não no cinza-azulado genérico do neumorfismo       */
+/* padrão. Sombra dupla suave (clara + escura) simula relevo físico.      */
 /* ---------------------------------------------------------------------- */
 :root {
-  --background: #f5f1e8;
-  --background-alt: #ede6d3;
-  --foreground: #171310;
+  --background: #e9e4d8;
+  --background-alt: #e2ddd0;
+  --foreground: #2b2620;
 
-  --primary: #ffd23f;
-  --primary-foreground: #171310;
+  --primary: #1f7a5c;
+  --primary-foreground: #ffffff;
 
-  --secondary: #7cc6fe;
-  --secondary-foreground: #171310;
+  --secondary: #2f6f8a;
+  --secondary-foreground: #ffffff;
 
-  --accent: #ff6b6b;
-  --accent-foreground: #171310;
+  --accent: #d9633b;
+  --accent-foreground: #ffffff;
 
-  --success: #4fb85f;
-  --success-foreground: #0c1e0e;
+  --success: #2fa66b;
+  --success-foreground: #ffffff;
 
-  --warning: #ffb020;
-  --warning-foreground: #171310;
+  --warning: #c98a2e;
+  --warning-foreground: #2b2000;
 
-  --danger: #e8433a;
+  --danger: #c1443a;
   --danger-foreground: #ffffff;
 
-  --muted: #e4dcc8;
-  --muted-foreground: #55503f;
+  --muted: #ded8c9;
+  --muted-foreground: #6b6355;
 
-  --card: #fffdf7;
-  --card-foreground: #171310;
+  --card: #e9e4d8;
+  --card-foreground: #2b2620;
 
-  --border: #171310;
-  --border-width: 3px;
+  --border: #cfc8b7;
+  --border-width: 1px;
 
-  --shadow-color: #171310;
-  --shadow-offset: 5px;
-  --shadow: var(--shadow-offset) var(--shadow-offset) 0 0 var(--shadow-color);
-  --shadow-sm: 3px 3px 0 0 var(--shadow-color);
-  --shadow-lg: 8px 8px 0 0 var(--shadow-color);
+  /* Fonte de luz do neumorfismo: realce quente (canto superior-esquerdo) e
+     sombra quente (canto inferior-direito), derivadas do próprio fundo. */
+  --neu-light: #fbf8f0;
+  --neu-dark: #c6bfae;
 
-  --radius: 6px;
+  --shadow-color: #14110c;
+  --shadow-flat-sm: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light);
+  --shadow-flat: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
+  --shadow-flat-lg: 14px 14px 28px var(--neu-dark), -14px -14px 28px var(--neu-light);
+  --shadow-inset-sm: inset 2.5px 2.5px 5px var(--neu-dark), inset -2.5px -2.5px 5px var(--neu-light);
+  --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
+
+  --radius: 20px;
+  --radius-sm: 12px;
 
   --font-display: var(--font-space-grotesk), "Arial Black", sans-serif;
   --font-body: var(--font-work-sans), Arial, sans-serif;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root[data-theme="dark"] {
-  --background: #1b1812;
-  --background-alt: #23201a;
-  --foreground: #f5f1e8;
+  --background: #201d18;
+  --background-alt: #262219;
+  --foreground: #ece6d8;
 
-  --primary: #ffd23f;
-  --primary-foreground: #171310;
+  --primary: #3bb383;
+  --primary-foreground: #08160f;
 
-  --secondary: #7cc6fe;
-  --secondary-foreground: #171310;
+  --secondary: #4fa2c2;
+  --secondary-foreground: #061419;
 
-  --accent: #ff8577;
-  --accent-foreground: #171310;
+  --accent: #e8825c;
+  --accent-foreground: #2b0f04;
 
-  --success: #67d478;
-  --success-foreground: #0c1e0e;
+  --success: #45c184;
+  --success-foreground: #062015;
 
-  --warning: #ffc247;
-  --warning-foreground: #171310;
+  --warning: #e0ab52;
+  --warning-foreground: #2b1c00;
 
-  --danger: #ff6b60;
-  --danger-foreground: #1b1812;
+  --danger: #e2685c;
+  --danger-foreground: #2b0908;
 
-  --muted: #2c2820;
-  --muted-foreground: #c9c2ac;
+  --muted: #2b2720;
+  --muted-foreground: #ab9f8b;
 
-  --card: #23201a;
-  --card-foreground: #f5f1e8;
+  --card: #201d18;
+  --card-foreground: #ece6d8;
 
-  --border: #f5f1e8;
+  --border: #3a352b;
+
+  --neu-light: #2c2820;
+  --neu-dark: #121009;
+
   --shadow-color: #000000;
+  --shadow-flat-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
+  --shadow-flat: 7px 7px 16px var(--neu-dark), -7px -7px 16px var(--neu-light);
+  --shadow-flat-lg: 14px 14px 30px var(--neu-dark), -14px -14px 30px var(--neu-light);
+  --shadow-inset-sm: inset 2.5px 2.5px 6px var(--neu-dark), inset -2.5px -2.5px 6px var(--neu-light);
+  --shadow-inset: inset 4px 4px 9px var(--neu-dark), inset -4px -4px 9px var(--neu-light);
 }
 
 @theme inline {
@@ -115,10 +136,6 @@
   --font-body: var(--font-body);
 }
 
-* {
-  border-color: var(--border);
-}
-
 html {
   color-scheme: light;
 }
@@ -127,10 +144,21 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
+.theme-icon-dark {
+  display: none;
+}
+html[data-theme="dark"] .theme-icon-light {
+  display: none;
+}
+html[data-theme="dark"] .theme-icon-dark {
+  display: block;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
+  transition: background-color 240ms var(--ease-out), color 240ms var(--ease-out);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -139,54 +167,141 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.01em;
 }
 
-/* Foco de teclado sempre visível */
+/* Foco de teclado sempre visível, inclusive sobre superfícies neumórficas */
 :focus-visible {
   outline: 3px solid var(--secondary);
-  outline-offset: 2px;
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
 }
 
-.brutal-scroll {
+.neu-scroll {
   scrollbar-width: thin;
 }
 
-/* Utilitário de sombra brutalista reutilizável fora do Tailwind arbitrary */
-.shadow-brutal {
-  box-shadow: var(--shadow);
-}
-.shadow-brutal-sm {
-  box-shadow: var(--shadow-sm);
-}
-.shadow-brutal-lg {
-  box-shadow: var(--shadow-lg);
-}
-
-.border-brutal {
-  border-style: solid;
-  border-width: var(--border-width);
-  border-color: var(--border);
+/* ---------------------------------------------------------------------- */
+/* Sistema neumórfico                                                     */
+/* A ordem das regras importa: quando um elemento combina .neu-surface com */
+/* uma classe .neu-shadow*, a sombra explícita (definida depois) vence a   */
+/* sombra "recuada" padrão — dando relevo a cards/botões e um efeito       */
+/* "afundado" a inputs/badges/ícones que não pedem sombra própria.         */
+/* ---------------------------------------------------------------------- */
+.neu-surface {
+  border: var(--border-width) solid transparent;
+  box-shadow: var(--shadow-inset-sm);
 }
 
-.rounded-brutal {
+.neu-rounded {
   border-radius: var(--radius);
 }
 
-/* Microinteração padrão: hover "empurra" o elemento na direção da sombra */
-.press-brutal {
-  transition: transform 120ms ease, box-shadow 120ms ease;
+.neu-shadow-sm {
+  box-shadow: var(--shadow-flat-sm);
 }
-.press-brutal:hover {
-  transform: translate(2px, 2px);
-  box-shadow: 3px 3px 0 0 var(--shadow-color);
+.neu-shadow {
+  box-shadow: var(--shadow-flat);
 }
-.press-brutal:active {
-  transform: translate(5px, 5px);
-  box-shadow: 0 0 0 0 var(--shadow-color);
+.neu-shadow-lg {
+  box-shadow: var(--shadow-flat-lg);
+}
+.neu-shadow-inset {
+  box-shadow: var(--shadow-inset);
 }
 
+/* Microinteração: elementos recuados "sobem" ao passar o mouse e afundam ao clicar;
+   elementos já em relevo apenas trocam para uma sombra mais compacta. */
+.neu-press {
+  transition: transform 180ms var(--ease-out), box-shadow 180ms var(--ease-out);
+}
+.neu-press:hover {
+  box-shadow: var(--shadow-flat-sm);
+  transform: translateY(-1px);
+}
+.neu-press:active {
+  box-shadow: var(--shadow-inset-sm);
+  transform: translateY(0.5px) scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neu-press {
+    transition: box-shadow 120ms linear;
+  }
+  .neu-press:hover,
+  .neu-press:active {
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Animações                                                              */
+/* ---------------------------------------------------------------------- */
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  50% { opacity: 0.45; }
 }
 .animate-skeleton {
-  animation: skeleton-pulse 1.4s ease-in-out infinite;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-up {
+  animation: fade-in-up 480ms var(--ease-out) both;
+}
+
+@keyframes overlay-show {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes overlay-hide {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes dialog-show {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@keyframes dialog-hide {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+}
+
+.animate-overlay[data-state="open"] {
+  animation: overlay-show 200ms var(--ease-out);
+}
+.animate-overlay[data-state="closed"] {
+  animation: overlay-hide 160ms var(--ease-out);
+}
+.animate-dialog[data-state="open"] {
+  animation: dialog-show 220ms var(--ease-out);
+}
+.animate-dialog[data-state="closed"] {
+  animation: dialog-hide 160ms var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up,
+  .animate-overlay,
+  .animate-dialog {
+    animation: none !important;
+  }
 }

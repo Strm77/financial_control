@@ -20,7 +20,7 @@ const TONE_CLASSES = {
 
 export function MetricCard({ label, value, icon: Icon, tone = "neutral", hint }: MetricCardProps) {
   return (
-    <div className={cn("border-brutal rounded-brutal shadow-brutal p-5 flex flex-col gap-2", TONE_CLASSES[tone])}>
+    <div className={cn("neu-surface neu-rounded neu-shadow p-5 flex flex-col gap-2", TONE_CLASSES[tone])}>
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm font-semibold uppercase tracking-wide opacity-80">{label}</span>
         {Icon && <Icon className="size-5 shrink-0" aria-hidden="true" />}

@@ -40,7 +40,7 @@ export const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
         }}
         placeholder="R$ 0,00"
         className={cn(
-          "w-full h-11 px-3 rounded-brutal border-brutal bg-card text-card-foreground",
+          "w-full h-11 px-3 neu-rounded neu-surface bg-card text-card-foreground",
           "placeholder:text-muted-foreground tabular-nums",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           invalid && "border-danger",

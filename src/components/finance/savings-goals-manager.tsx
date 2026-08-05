@@ -142,7 +142,7 @@ export function SavingsGoalsManager({ goals }: { goals: SavingsGoal[] }) {
               const isBusy = busyId === goal.id;
 
               return (
-                <li key={goal.id} className="border-brutal rounded-brutal p-4 bg-background-alt">
+                <li key={goal.id} className="neu-surface neu-rounded p-4 bg-background-alt">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -191,7 +191,7 @@ export function SavingsGoalsManager({ goals }: { goals: SavingsGoal[] }) {
                           aria-label="Retomar"
                           disabled={isBusy}
                           onClick={() => handleStatusChange(goal, "active")}
-                          className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer disabled:opacity-50"
+                          className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer disabled:opacity-50"
                         >
                           <Play className="size-4" aria-hidden="true" />
                         </button>
@@ -201,7 +201,7 @@ export function SavingsGoalsManager({ goals }: { goals: SavingsGoal[] }) {
                           aria-label="Pausar"
                           disabled={isBusy}
                           onClick={() => handleStatusChange(goal, "paused")}
-                          className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer disabled:opacity-50"
+                          className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer disabled:opacity-50"
                         >
                           <Pause className="size-4" aria-hidden="true" />
                         </button>
@@ -211,7 +211,7 @@ export function SavingsGoalsManager({ goals }: { goals: SavingsGoal[] }) {
                       type="button"
                       aria-label="Editar"
                       onClick={() => setEditState({ mode: "edit", goal })}
-                      className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                      className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                     >
                       <Pencil className="size-4" aria-hidden="true" />
                     </button>
@@ -219,7 +219,7 @@ export function SavingsGoalsManager({ goals }: { goals: SavingsGoal[] }) {
                       type="button"
                       aria-label="Excluir"
                       onClick={() => setDeleteTarget(goal)}
-                      className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                      className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                     >
                       <Trash2 className="size-4" aria-hidden="true" />
                     </button>
@@ -266,7 +266,7 @@ export function SavingsGoalsManager({ goals }: { goals: SavingsGoal[] }) {
           ) : (
             <ul className="space-y-2">
               {history.map((c) => (
-                <li key={c.id} className="flex items-center justify-between gap-3 border-brutal rounded-brutal px-3 py-2.5 bg-background-alt">
+                <li key={c.id} className="flex items-center justify-between gap-3 neu-surface neu-rounded px-3 py-2.5 bg-background-alt">
                   <span className="text-sm font-semibold">{formatDateBR(c.contribution_date)}</span>
                   <span className={`font-bold tabular-nums ${c.amount_cents < 0 ? "text-danger" : "text-success"}`}>
                     {c.amount_cents < 0 ? "-" : "+"} {centsToBRL(Math.abs(c.amount_cents))}

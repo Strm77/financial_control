@@ -24,7 +24,7 @@ export function ProgressBar({ percent, variant = "primary", className, label }: 
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label}
-      className={cn("h-4 w-full rounded-brutal border-brutal bg-background-alt overflow-hidden", className)}
+      className={cn("h-4 w-full neu-rounded neu-surface bg-background-alt overflow-hidden", className)}
     >
       <div
         className={cn("h-full transition-[width] duration-300 ease-out", VARIANT_CLASSES[variant])}

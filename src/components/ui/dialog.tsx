@@ -18,12 +18,12 @@ export function Dialog({ open, onOpenChange, title, description, children, class
   return (
     <RadixDialog.Root open={open} onOpenChange={onOpenChange}>
       <RadixDialog.Portal>
-        <RadixDialog.Overlay className="fixed inset-0 bg-foreground/40 z-40 data-[state=open]:animate-in data-[state=open]:fade-in data-[state=closed]:animate-out data-[state=closed]:fade-out" />
+        <RadixDialog.Overlay className="animate-overlay fixed inset-0 bg-foreground/40 z-40" />
         <RadixDialog.Content
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
-            "bg-card text-card-foreground border-brutal rounded-brutal shadow-brutal-lg p-6",
-            "max-h-[85vh] overflow-y-auto brutal-scroll",
+            "animate-dialog fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
+            "bg-card text-card-foreground neu-surface neu-rounded neu-shadow-lg p-6",
+            "max-h-[85vh] overflow-y-auto neu-scroll",
             className
           )}
         >
@@ -40,7 +40,7 @@ export function Dialog({ open, onOpenChange, title, description, children, class
               <button
                 type="button"
                 aria-label="Fechar"
-                className="size-9 shrink-0 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                className="size-9 shrink-0 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
               >
                 <X className="size-4" aria-hidden="true" />
               </button>

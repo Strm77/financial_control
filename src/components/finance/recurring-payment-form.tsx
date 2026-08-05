@@ -144,7 +144,7 @@ export function RecurringPaymentForm({
           {isCardCategory ? (
             <>
               <Label>Cartão vinculado</Label>
-              <div className="h-11 px-3 rounded-brutal border-brutal bg-background-alt flex items-center gap-2 text-sm">
+              <div className="h-11 px-3 neu-rounded neu-surface bg-background-alt flex items-center gap-2 text-sm">
                 <CreditCard className="size-4 shrink-0" aria-hidden="true" />
                 <span className="truncate">{description?.trim() || "(preencha a descrição)"}</span>
               </div>

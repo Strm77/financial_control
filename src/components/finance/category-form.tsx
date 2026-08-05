@@ -67,7 +67,7 @@ export function CategoryForm({ defaultValues, onSubmit, onCancel, submitLabel = 
                   aria-label={`Cor ${color}`}
                   onClick={() => field.onChange(color)}
                   className={cn(
-                    "size-9 rounded-brutal border-brutal press-brutal",
+                    "size-9 neu-rounded neu-surface neu-press",
                     field.value === color && "ring-2 ring-offset-2 ring-foreground"
                   )}
                   style={{ backgroundColor: color }}
@@ -96,7 +96,7 @@ export function CategoryForm({ defaultValues, onSubmit, onCancel, submitLabel = 
                     aria-label={iconName}
                     onClick={() => field.onChange(iconName)}
                     className={cn(
-                      "size-10 rounded-brutal border-brutal bg-card grid place-items-center press-brutal",
+                      "size-10 neu-rounded neu-surface bg-card grid place-items-center neu-press",
                       field.value === iconName && "bg-primary text-primary-foreground"
                     )}
                   >

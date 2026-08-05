@@ -12,7 +12,7 @@ export function CategoryBadge({ name, color, icon }: CategoryBadgeProps) {
 
   return (
     <span
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-brutal border-brutal text-xs font-bold bg-card"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 neu-rounded neu-surface text-xs font-bold bg-card"
       style={{ boxShadow: `inset 4px 0 0 0 ${swatch}` }}
     >
       {/* eslint-disable-next-line react-hooks/static-components -- Icon é selecionado de um mapa fixo de ícones (identidade estável), não criado dinamicamente */}

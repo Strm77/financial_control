@@ -30,8 +30,8 @@ export function ConfirmDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={onOpenChange}>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 bg-foreground/40 z-40" />
-        <AlertDialog.Content className="fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 bg-card text-card-foreground border-brutal rounded-brutal shadow-brutal-lg p-6">
+        <AlertDialog.Overlay className="animate-overlay fixed inset-0 bg-foreground/40 z-40" />
+        <AlertDialog.Content className="animate-dialog fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 bg-card text-card-foreground neu-surface neu-rounded neu-shadow-lg p-6">
           <AlertDialog.Title className="text-xl font-bold font-display mb-2">{title}</AlertDialog.Title>
           <AlertDialog.Description className="text-sm text-muted-foreground mb-6">
             {description}

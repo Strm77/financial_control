@@ -198,11 +198,11 @@ export function FaturasManager({
               const isBusy = invoice ? busyInvoiceId === invoice.id : busyInvoiceId === card.id;
 
               return (
-                <li key={card.id} className="border-brutal rounded-brutal bg-background-alt overflow-hidden">
+                <li key={card.id} className="neu-surface neu-rounded bg-background-alt overflow-hidden">
                   <div className="p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0 flex items-center gap-2.5">
-                        <span className="size-9 rounded-brutal border-brutal bg-card grid place-items-center shrink-0">
+                        <span className="size-9 neu-rounded neu-surface bg-card grid place-items-center shrink-0">
                           <CreditCard className="size-4" aria-hidden="true" />
                         </span>
                         <div className="min-w-0">
@@ -221,7 +221,7 @@ export function FaturasManager({
                           type="button"
                           aria-label="Editar cartão"
                           onClick={() => setCardDialogState({ mode: "edit", card })}
-                          className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                          className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                         >
                           <Pencil className="size-4" aria-hidden="true" />
                         </button>
@@ -229,7 +229,7 @@ export function FaturasManager({
                           type="button"
                           aria-label="Excluir cartão"
                           onClick={() => setDeleteCardTarget(card)}
-                          className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer"
+                          className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer"
                         >
                           <Trash2 className="size-4" aria-hidden="true" />
                         </button>
@@ -267,7 +267,7 @@ export function FaturasManager({
                         </div>
 
                         {isExpanded && (
-                          <div className="border-brutal rounded-brutal bg-card p-3.5">
+                          <div className="neu-surface neu-rounded bg-card p-3.5">
                             {loadingItemsId === invoice.id ? (
                               <ListSkeleton rows={2} />
                             ) : (
@@ -275,10 +275,10 @@ export function FaturasManager({
                                 {(items ?? []).length === 0 ? (
                                   <EmptyState title="Nenhum item lançado" description="Adicione os itens da fatura para acompanhar os gastos." />
                                 ) : (
-                                  <div className="overflow-x-auto brutal-scroll">
+                                  <div className="overflow-x-auto neu-scroll">
                                     <table className="w-full text-sm">
                                       <thead>
-                                        <tr className="text-left border-b-[3px] border-b-border">
+                                        <tr className="text-left border-b border-border/70">
                                           <th className="py-2 pr-3 font-bold">Descrição</th>
                                           <th className="py-2 pr-3 font-bold">Parcela</th>
                                           <th className="py-2 pr-3 font-bold text-right">Valor</th>
@@ -300,7 +300,7 @@ export function FaturasManager({
                                                 type="button"
                                                 aria-label={`Excluir ${item.description}`}
                                                 onClick={() => handleDeleteItem(invoice.id, item.id)}
-                                                className="size-8 grid place-items-center rounded-brutal border-brutal bg-background-alt press-brutal cursor-pointer"
+                                                className="size-8 grid place-items-center neu-rounded neu-surface bg-background-alt neu-press cursor-pointer"
                                               >
                                                 <Trash2 className="size-3.5" aria-hidden="true" />
                                               </button>

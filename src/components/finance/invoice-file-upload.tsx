@@ -117,7 +117,7 @@ export function InvoiceFileUpload({ invoiceId, hasAttachment }: { invoiceId: str
             aria-label="Remover anexo"
             disabled={removing}
             onClick={handleRemove}
-            className="size-9 grid place-items-center rounded-brutal border-brutal bg-card press-brutal cursor-pointer disabled:opacity-50"
+            className="size-9 grid place-items-center neu-rounded neu-surface bg-card neu-press cursor-pointer disabled:opacity-50"
           >
             {removing ? <Loader2 className="size-4 animate-spin" aria-hidden="true" /> : <Trash2 className="size-4" aria-hidden="true" />}
           </button>

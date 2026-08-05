@@ -12,7 +12,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       ref={ref}
       aria-invalid={invalid || undefined}
       className={cn(
-        "w-full min-h-24 px-3 py-2 rounded-brutal border-brutal bg-card text-card-foreground",
+        "w-full min-h-24 px-3 py-2 neu-rounded neu-surface bg-card text-card-foreground",
         "placeholder:text-muted-foreground",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         invalid && "border-danger",
