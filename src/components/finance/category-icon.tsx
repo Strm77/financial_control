@@ -23,6 +23,7 @@ import {
   Landmark,
   Shirt,
   Wrench,
+  CreditCard,
   type LucideIcon,
 } from "lucide-react";
 
@@ -51,6 +52,7 @@ export const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
   landmark: Landmark,
   shirt: Shirt,
   wrench: Wrench,
+  "credit-card": CreditCard,
 };
 
 export function getCategoryIcon(icon: string | null | undefined): LucideIcon {

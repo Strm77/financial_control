@@ -63,6 +63,8 @@ supabase/
                                              (+ bucket de Storage "faturas")
     0003_debt_installment_offset.sql        permite cadastrar dívida já em andamento
                                              (saldo inicial e parcelas já pagas)
+    0004_payment_categories.sql             categorias padrão Serviços, Empréstimo,
+                                             Cartão de Crédito e Cartão de Loja
 ```
 
 - **Server Components por padrão**; Client Components apenas onde há interação, formulário, gráfico ou APIs do navegador.
@@ -83,7 +85,7 @@ Este é o requisito mais importante do projeto, então vale destacar como ele é
 ## Funcionalidades por menu
 
 - **Renda**: lançamentos de renda fixa (salário) e variável (freelance) por mês, somados automaticamente como a renda do mês selecionado.
-- **Controle de Pagamento** (`/pagamentos`): cobranças com tipo **fixa** (recorrente sem fim), **temporária** (recorrente com data de término) ou **variável** (valor muda a cada mês). O status **pago/parcial** é inferido automaticamente comparando o valor pago com o valor esperado — não é um campo que você escolhe manualmente. O **desconto** (ou acréscimo, se pagou mais) é calculado como `valor esperado − valor pago` e exibido junto ao lançamento. O dia de vencimento é sempre um *dia do mês* (não uma data fixa): o app recalcula sozinho o próximo vencimento a cada mês, inclusive ajustando para o último dia válido (ex: dia 31 em fevereiro vira dia 28).
+- **Controle de Pagamento** (`/pagamentos`): cobranças com tipo **fixa** (recorrente sem fim), **temporária** (recorrente com data de término) ou **variável** (valor muda a cada mês). Traz um mini-dashboard "Meus Pagamentos" com total pendente, total pago, renda total do mês e renda restante (renda − pago − pendente). O status **pago/parcial** é inferido automaticamente comparando o valor pago com o valor esperado; se o valor pago for menor mas você marcar o toggle **"Possui desconto?"** no momento de registrar o pagamento, o status vira **Pago** em vez de **Parcial**. O **desconto** (ou acréscimo, se pagou mais) é calculado como `valor esperado − valor pago` e exibido junto ao lançamento. O dia de vencimento é escolhido num calendário, mas só o *dia do mês* é usado (não uma data fixa) — o app recalcula sozinho o próximo vencimento a cada mês, inclusive ajustando para o último dia válido (ex: dia 31 em fevereiro vira dia 28). Quando a categoria escolhida é **Cartão de Crédito** ou **Cartão de Loja**, o app cria/vincula automaticamente um Cartão (menu Faturas) com o mesmo nome da descrição — não precisa escolher manualmente.
 - **Dívidas**: além do saldo devedor, é possível informar valor da parcela e número total de parcelas — a parcela atual é sempre calculada a partir de quantos pagamentos já foram registrados (nunca fica dessincronizada). O dia de vencimento funciona do mesmo jeito que em Pagamentos.
 - **Faturas**: cadastre seus cartões (crédito ou loja) e, para cada cartão, crie a fatura do mês. É possível anexar o PDF/imagem da fatura (armazenado no Supabase Storage, privado por usuário) e lançar os itens manualmente numa tabela, incluindo o controle de parcela atual/total de compras parceladas.
 
@@ -100,10 +102,11 @@ Este é o requisito mais importante do projeto, então vale destacar como ele é
 1. No painel do Supabase, abra **SQL Editor**.
 2. Cole todo o conteúdo de [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) e execute (**Run**).
 3. Em seguida, numa nova query, cole todo o conteúdo de [`supabase/migrations/0002_income_installments_invoices.sql`](./supabase/migrations/0002_income_installments_invoices.sql) e execute. Essa migration adiciona: menu Renda, parcelas em Dívidas, o novo Controle de Pagamento (tipo fixa/temporária/variável e status parcial) e o menu Faturas (cartões, faturas e itens) — **incluindo a criação automática do bucket de Storage `faturas`** (privado, com policies por usuário) via `insert into storage.buckets`.
-4. Por fim, cole o conteúdo de [`supabase/migrations/0003_debt_installment_offset.sql`](./supabase/migrations/0003_debt_installment_offset.sql) e execute. Ela permite cadastrar uma dívida que já estava em andamento, informando o saldo devedor atual e quantas parcelas já foram pagas antes de começar a usar o app.
-5. As migrations são idempotentes onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — podem ser executadas novamente sem duplicar objetos.
-6. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
-7. Confirme também que o bucket foi criado: menu lateral → **Storage** → deve aparecer um bucket chamado **faturas** (privado). Se por algum motivo ele não aparecer (raro, depende de permissões do plano), crie manualmente: **Storage → New bucket → nome `faturas` → Private** — as policies de acesso já foram criadas pela migration e funcionam independente de quando o bucket foi criado.
+4. Cole o conteúdo de [`supabase/migrations/0003_debt_installment_offset.sql`](./supabase/migrations/0003_debt_installment_offset.sql) e execute. Ela permite cadastrar uma dívida que já estava em andamento, informando o saldo devedor atual e quantas parcelas já foram pagas antes de começar a usar o app.
+5. Por fim, cole o conteúdo de [`supabase/migrations/0004_payment_categories.sql`](./supabase/migrations/0004_payment_categories.sql) e execute. Adiciona as categorias padrão **Serviços**, **Empréstimo**, **Cartão de Crédito** e **Cartão de Loja** — as duas últimas são usadas pelo Controle de Pagamento para criar/vincular automaticamente um Cartão (menu Faturas). Essa migration atualiza também os usuários já existentes, não só os futuros.
+6. As migrations são idempotentes onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — podem ser executadas novamente sem duplicar objetos.
+7. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
+8. Confirme também que o bucket foi criado: menu lateral → **Storage** → deve aparecer um bucket chamado **faturas** (privado). Se por algum motivo ele não aparecer (raro, depende de permissões do plano), crie manualmente: **Storage → New bucket → nome `faturas` → Private** — as policies de acesso já foram criadas pela migration e funcionam independente de quando o bucket foi criado.
 
 > Alternativamente, com a [Supabase CLI](https://supabase.com/docs/guides/cli) instalada: `supabase link --project-ref <seu-projeto>` e depois `supabase db push` (aplica todas as migrations da pasta de uma vez).
 

@@ -25,6 +25,14 @@ describe("inferPaymentStatus", () => {
   it("retorna 'partial' quando o valor pago é menor que o esperado", () => {
     expect(inferPaymentStatus(10000, 8000)).toBe("partial");
   });
+
+  it("retorna 'paid' quando o valor pago é menor mas há desconto marcado", () => {
+    expect(inferPaymentStatus(10000, 8000, true)).toBe("paid");
+  });
+
+  it("com hasDiscount, ainda retorna 'paid' quando pagou o valor cheio", () => {
+    expect(inferPaymentStatus(10000, 10000, true)).toBe("paid");
+  });
 });
 
 describe("computeDiscountCents", () => {

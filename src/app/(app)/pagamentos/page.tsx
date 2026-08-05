@@ -24,15 +24,18 @@ export default async function PagamentosPage({ searchParams }: PagamentosPagePro
     { data: recurringPayments, error: recurringError },
     { data: paymentRecords, error: recordsError },
     { data: cards, error: cardsError },
+    { data: incomes, error: incomesError },
   ] = await Promise.all([
     supabase.from("categories").select("*").eq("type", "expense").order("name"),
     supabase.from("recurring_payments").select("*").order("due_day", { ascending: true }),
     supabase.from("payment_records").select("*").eq("reference_month", referenceMonth),
     supabase.from("cards").select("*").order("name"),
+    supabase.from("incomes").select("amount_cents").eq("reference_month", referenceMonth),
   ]);
 
-  const error = categoriesError || recurringError || recordsError || cardsError;
+  const error = categoriesError || recurringError || recordsError || cardsError || incomesError;
   const categoriesById = new Map<string, Category>((categories ?? []).map((c: Category) => [c.id, c]));
+  const incomeTotalCents = (incomes ?? []).reduce((sum, i) => sum + i.amount_cents, 0);
 
   return (
     <div>
@@ -50,6 +53,7 @@ export default async function PagamentosPage({ searchParams }: PagamentosPagePro
           period={period}
           referenceMonth={referenceMonth}
           now={nowInSaoPaulo()}
+          incomeTotalCents={incomeTotalCents}
         />
       )}
     </div>

@@ -2,6 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CreditCard } from "lucide-react";
 import { recurringPaymentSchema, PAYMENT_TYPE_LABELS, type RecurringPaymentFormValues } from "@/lib/validations/recurring-payment";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,8 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { DateInput } from "@/components/ui/date-input";
 import { toDateOnlyString } from "@/lib/formatters/date";
 import type { Category, Card as CardEntity } from "@/types/entities";
+
+const CARD_CATEGORY_NAMES = ["Cartão de Crédito", "Cartão de Loja"];
 
 export interface RecurringPaymentFormProps {
   expenseCategories: Category[];
@@ -35,6 +38,7 @@ export function RecurringPaymentForm({
     register,
     control,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<RecurringPaymentFormValues>({
     resolver: zodResolver(recurringPaymentSchema),
@@ -50,6 +54,11 @@ export function RecurringPaymentForm({
       notes: defaultValues?.notes ?? "",
     },
   });
+
+  const description = watch("description");
+  const categoryId = watch("categoryId");
+  const selectedCategory = expenseCategories.find((c) => c.id === categoryId);
+  const isCardCategory = !!selectedCategory && CARD_CATEGORY_NAMES.includes(selectedCategory.name);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -76,7 +85,7 @@ export function RecurringPaymentForm({
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="amountCents">Valor</Label>
+          <Label htmlFor="amountCents">Valor real</Label>
           <Controller
             control={control}
             name="amountCents"
@@ -87,15 +96,28 @@ export function RecurringPaymentForm({
           <FieldError message={errors.amountCents?.message} />
         </div>
         <div>
-          <Label htmlFor="dueDay">Dia de vencimento</Label>
-          <Input
-            id="dueDay"
-            type="number"
-            min={1}
-            max={31}
-            invalid={!!errors.dueDay}
-            {...register("dueDay", { valueAsNumber: true })}
+          <Label htmlFor="dueDay">Data de vencimento</Label>
+          <Controller
+            control={control}
+            name="dueDay"
+            render={({ field }) => {
+              const now = new Date();
+              const day = field.value && field.value >= 1 && field.value <= 31 ? field.value : 1;
+              const displayDate = toDateOnlyString(new Date(now.getFullYear(), now.getMonth(), day));
+              return (
+                <DateInput
+                  id="dueDay"
+                  invalid={!!errors.dueDay}
+                  value={displayDate}
+                  onChange={(e) => {
+                    if (!e.target.value) return;
+                    field.onChange(Number(e.target.value.slice(8, 10)));
+                  }}
+                />
+              );
+            }}
           />
+          <p className="mt-1.5 text-xs text-muted-foreground">Só o dia é usado — vence nesse dia todo mês.</p>
           <FieldError message={errors.dueDay?.message} />
         </div>
       </div>
@@ -119,22 +141,37 @@ export function RecurringPaymentForm({
           />
         </div>
         <div>
-          <Label htmlFor="cardId">Cartão vinculado (opcional)</Label>
-          <Controller
-            control={control}
-            name="cardId"
-            render={({ field }) => (
-              <Select id="cardId" value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value || null)}>
-                <option value="">Nenhum</option>
-                {cards.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            )}
-          />
-          <p className="mt-1.5 text-xs text-muted-foreground">Se for a fatura de um cartão, vincule para gerenciar em Faturas.</p>
+          {isCardCategory ? (
+            <>
+              <Label>Cartão vinculado</Label>
+              <div className="h-11 px-3 rounded-brutal border-brutal bg-background-alt flex items-center gap-2 text-sm">
+                <CreditCard className="size-4 shrink-0" aria-hidden="true" />
+                <span className="truncate">{description?.trim() || "(preencha a descrição)"}</span>
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Um cartão com o mesmo nome da descrição é criado/vinculado automaticamente em Faturas.
+              </p>
+            </>
+          ) : (
+            <>
+              <Label htmlFor="cardId">Cartão vinculado (opcional)</Label>
+              <Controller
+                control={control}
+                name="cardId"
+                render={({ field }) => (
+                  <Select id="cardId" value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value || null)}>
+                    <option value="">Nenhum</option>
+                    {cards.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">Se for a fatura de um cartão, vincule para gerenciar em Faturas.</p>
+            </>
+          )}
         </div>
       </div>
 

@@ -25,6 +25,7 @@ export const CATEGORY_ICONS = [
   "landmark",
   "shirt",
   "wrench",
+  "credit-card",
 ] as const;
 
 export const CATEGORY_COLORS = [

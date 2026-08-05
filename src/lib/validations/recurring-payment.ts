@@ -31,5 +31,6 @@ export type RecurringPaymentFormValues = z.infer<typeof recurringPaymentSchema>;
 export const markPaymentPaidSchema = z.object({
   paidAt: z.string().min(1, "Informe a data do pagamento"),
   amountPaidCents: z.number({ message: "Informe o valor pago" }).int().positive("O valor deve ser maior que zero"),
+  hasDiscount: z.boolean().optional(),
 });
 export type MarkPaymentPaidFormValues = z.infer<typeof markPaymentPaidSchema>;

@@ -17,8 +17,13 @@ export function computeInstallmentProgress(paidInstallments: number, totalInstal
 
 export type InferredPaymentStatus = "paid" | "partial";
 
-/** Infere se um pagamento foi total ou parcial comparando o valor pago com o esperado. */
-export function inferPaymentStatus(expectedCents: number, paidCents: number): InferredPaymentStatus {
+/**
+ * Infere se um pagamento foi total ou parcial comparando o valor pago com o esperado.
+ * Quando `hasDiscount` é true, um valor pago menor que o esperado é tratado como desconto
+ * (o pagamento é considerado total, não parcial) em vez de pagamento incompleto.
+ */
+export function inferPaymentStatus(expectedCents: number, paidCents: number, hasDiscount = false): InferredPaymentStatus {
+  if (hasDiscount) return "paid";
   return paidCents >= expectedCents ? "paid" : "partial";
 }
 
