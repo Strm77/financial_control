@@ -100,7 +100,7 @@ export function DebtsManager({
 
   function renderDebtCard(debt: Debt) {
     const progress = computeGoalProgress(debt.original_amount_cents - debt.current_balance_cents, debt.original_amount_cents);
-    const paidInstallments = paidInstallmentsByDebtId[debt.id] ?? 0;
+    const paidInstallments = debt.initial_installments_paid + (paidInstallmentsByDebtId[debt.id] ?? 0);
     const installmentProgress =
       debt.total_installments !== null ? computeInstallmentProgress(paidInstallments, debt.total_installments) : null;
     const due = debt.status === "active" && debt.due_day !== null ? nextDueDate(debt.due_day, nowInSaoPaulo()) : null;

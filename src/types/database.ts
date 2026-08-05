@@ -182,6 +182,7 @@ export interface Database {
           minimum_payment_cents: number | null;
           installment_amount_cents: number | null;
           total_installments: number | null;
+          initial_installments_paid: number;
           due_day: number | null;
           status: DebtStatus;
           notes: string | null;
@@ -199,6 +200,7 @@ export interface Database {
           minimum_payment_cents?: number | null;
           installment_amount_cents?: number | null;
           total_installments?: number | null;
+          initial_installments_paid?: number;
           due_day?: number | null;
           status?: DebtStatus;
           notes?: string | null;

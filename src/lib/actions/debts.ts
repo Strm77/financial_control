@@ -21,11 +21,12 @@ export async function createDebtAction(values: DebtFormValues): Promise<ActionRe
       name: parsed.data.name,
       creditor: parsed.data.creditor ?? null,
       original_amount_cents: parsed.data.originalAmountCents,
-      current_balance_cents: parsed.data.originalAmountCents,
+      current_balance_cents: parsed.data.currentBalanceCents ?? parsed.data.originalAmountCents,
       interest_rate: parsed.data.interestRate ?? null,
       minimum_payment_cents: parsed.data.minimumPaymentCents ?? null,
       installment_amount_cents: parsed.data.installmentAmountCents ?? null,
       total_installments: parsed.data.totalInstallments ?? null,
+      initial_installments_paid: parsed.data.initialInstallmentsPaid ?? 0,
       due_day: parsed.data.dueDay ?? null,
       notes: parsed.data.notes ?? null,
     })
@@ -33,6 +34,11 @@ export async function createDebtAction(values: DebtFormValues): Promise<ActionRe
     .single();
 
   if (error) return { success: false, message: "Não foi possível criar a dívida." };
+
+  if (data.status === "active" && data.current_balance_cents === 0) {
+    await supabase.from("debts").update({ status: "paid" }).eq("id", data.id).eq("user_id", user.id);
+    data.status = "paid";
+  }
 
   revalidatePath("/dividas");
   revalidatePath("/dashboard");

@@ -61,6 +61,8 @@ supabase/
     0002_income_installments_invoices.sql   renda, parcelas de dívida, controle de
                                              pagamento (tipo/parcial), cartões e faturas
                                              (+ bucket de Storage "faturas")
+    0003_debt_installment_offset.sql        permite cadastrar dívida já em andamento
+                                             (saldo inicial e parcelas já pagas)
 ```
 
 - **Server Components por padrão**; Client Components apenas onde há interação, formulário, gráfico ou APIs do navegador.
@@ -98,9 +100,10 @@ Este é o requisito mais importante do projeto, então vale destacar como ele é
 1. No painel do Supabase, abra **SQL Editor**.
 2. Cole todo o conteúdo de [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) e execute (**Run**).
 3. Em seguida, numa nova query, cole todo o conteúdo de [`supabase/migrations/0002_income_installments_invoices.sql`](./supabase/migrations/0002_income_installments_invoices.sql) e execute. Essa migration adiciona: menu Renda, parcelas em Dívidas, o novo Controle de Pagamento (tipo fixa/temporária/variável e status parcial) e o menu Faturas (cartões, faturas e itens) — **incluindo a criação automática do bucket de Storage `faturas`** (privado, com policies por usuário) via `insert into storage.buckets`.
-4. As duas migrations são idempotentes onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — podem ser executadas novamente sem duplicar objetos.
-5. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
-6. Confirme também que o bucket foi criado: menu lateral → **Storage** → deve aparecer um bucket chamado **faturas** (privado). Se por algum motivo ele não aparecer (raro, depende de permissões do plano), crie manualmente: **Storage → New bucket → nome `faturas` → Private** — as policies de acesso já foram criadas pela migration e funcionam independente de quando o bucket foi criado.
+4. Por fim, cole o conteúdo de [`supabase/migrations/0003_debt_installment_offset.sql`](./supabase/migrations/0003_debt_installment_offset.sql) e execute. Ela permite cadastrar uma dívida que já estava em andamento, informando o saldo devedor atual e quantas parcelas já foram pagas antes de começar a usar o app.
+5. As migrations são idempotentes onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — podem ser executadas novamente sem duplicar objetos.
+6. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
+7. Confirme também que o bucket foi criado: menu lateral → **Storage** → deve aparecer um bucket chamado **faturas** (privado). Se por algum motivo ele não aparecer (raro, depende de permissões do plano), crie manualmente: **Storage → New bucket → nome `faturas` → Private** — as policies de acesso já foram criadas pela migration e funcionam independente de quando o bucket foi criado.
 
 > Alternativamente, com a [Supabase CLI](https://supabase.com/docs/guides/cli) instalada: `supabase link --project-ref <seu-projeto>` e depois `supabase db push` (aplica todas as migrations da pasta de uma vez).
 

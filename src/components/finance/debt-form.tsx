@@ -30,10 +30,12 @@ export function DebtForm({ mode, defaultValues, onSubmit, onCancel, submitLabel 
       name: defaultValues?.name ?? "",
       creditor: defaultValues?.creditor ?? "",
       originalAmountCents: defaultValues?.originalAmountCents ?? 0,
+      currentBalanceCents: defaultValues?.currentBalanceCents ?? null,
       interestRate: defaultValues?.interestRate ?? null,
       minimumPaymentCents: defaultValues?.minimumPaymentCents ?? null,
       installmentAmountCents: defaultValues?.installmentAmountCents ?? null,
       totalInstallments: defaultValues?.totalInstallments ?? null,
+      initialInstallmentsPaid: defaultValues?.initialInstallmentsPaid ?? null,
       dueDay: defaultValues?.dueDay ?? null,
       notes: defaultValues?.notes ?? "",
     },
@@ -74,6 +76,45 @@ export function DebtForm({ mode, defaultValues, onSubmit, onCancel, submitLabel 
         )}
         <FieldError message={errors.originalAmountCents?.message} />
       </div>
+
+      {mode === "create" && (
+        <div className="border-brutal rounded-brutal bg-background-alt p-3.5 space-y-4">
+          <p className="text-xs font-semibold text-muted-foreground">
+            Essa dívida já estava em andamento antes de você começar a controlar aqui? Preencha os campos abaixo. Se for uma dívida
+            nova, pode deixar em branco.
+          </p>
+          <div>
+            <Label htmlFor="currentBalanceCents">Saldo devedor atual (se diferente do valor original)</Label>
+            <Controller
+              control={control}
+              name="currentBalanceCents"
+              render={({ field }) => (
+                <CurrencyInput
+                  id="currentBalanceCents"
+                  invalid={!!errors.currentBalanceCents}
+                  valueCents={field.value ?? null}
+                  onValueChange={(cents) => field.onChange(cents || null)}
+                />
+              )}
+            />
+            <FieldError message={errors.currentBalanceCents?.message} />
+          </div>
+          <div>
+            <Label htmlFor="initialInstallmentsPaid">Parcelas já pagas antes de cadastrar</Label>
+            <Input
+              id="initialInstallmentsPaid"
+              type="number"
+              min={0}
+              invalid={!!errors.initialInstallmentsPaid}
+              {...register("initialInstallmentsPaid", { setValueAs: (v) => (v === "" ? null : Number(v)) })}
+            />
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              Usado junto com o número total de parcelas para calcular a parcela atual corretamente.
+            </p>
+            <FieldError message={errors.initialInstallmentsPaid?.message} />
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <div>
