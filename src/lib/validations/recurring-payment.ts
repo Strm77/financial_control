@@ -13,6 +13,7 @@ export const recurringPaymentSchema = z
     amountCents: z.number({ message: "Informe um valor" }).int().positive("O valor deve ser maior que zero"),
     categoryId: z.string().uuid().nullable().optional(),
     cardId: z.string().uuid().nullable().optional(),
+    debtId: z.string().uuid().nullable().optional(),
     dueDay: z
       .number({ message: "Informe o dia de vencimento" })
       .int()

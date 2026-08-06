@@ -65,6 +65,8 @@ supabase/
                                              (saldo inicial e parcelas já pagas)
     0004_payment_categories.sql             categorias padrão Serviços, Empréstimo,
                                              Cartão de Crédito e Cartão de Loja
+    0005_recurring_payment_debt_link.sql    vínculo opcional de cobrança recorrente
+                                             com uma Dívida (categoria Empréstimo)
 ```
 
 - **Server Components por padrão**; Client Components apenas onde há interação, formulário, gráfico ou APIs do navegador.
@@ -103,10 +105,11 @@ Este é o requisito mais importante do projeto, então vale destacar como ele é
 2. Cole todo o conteúdo de [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql) e execute (**Run**).
 3. Em seguida, numa nova query, cole todo o conteúdo de [`supabase/migrations/0002_income_installments_invoices.sql`](./supabase/migrations/0002_income_installments_invoices.sql) e execute. Essa migration adiciona: menu Renda, parcelas em Dívidas, o novo Controle de Pagamento (tipo fixa/temporária/variável e status parcial) e o menu Faturas (cartões, faturas e itens) — **incluindo a criação automática do bucket de Storage `faturas`** (privado, com policies por usuário) via `insert into storage.buckets`.
 4. Cole o conteúdo de [`supabase/migrations/0003_debt_installment_offset.sql`](./supabase/migrations/0003_debt_installment_offset.sql) e execute. Ela permite cadastrar uma dívida que já estava em andamento, informando o saldo devedor atual e quantas parcelas já foram pagas antes de começar a usar o app.
-5. Por fim, cole o conteúdo de [`supabase/migrations/0004_payment_categories.sql`](./supabase/migrations/0004_payment_categories.sql) e execute. Adiciona as categorias padrão **Serviços**, **Empréstimo**, **Cartão de Crédito** e **Cartão de Loja** — as duas últimas são usadas pelo Controle de Pagamento para criar/vincular automaticamente um Cartão (menu Faturas). Essa migration atualiza também os usuários já existentes, não só os futuros.
-6. As migrations são idempotentes onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — podem ser executadas novamente sem duplicar objetos.
-7. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
-8. Confirme também que o bucket foi criado: menu lateral → **Storage** → deve aparecer um bucket chamado **faturas** (privado). Se por algum motivo ele não aparecer (raro, depende de permissões do plano), crie manualmente: **Storage → New bucket → nome `faturas` → Private** — as policies de acesso já foram criadas pela migration e funcionam independente de quando o bucket foi criado.
+5. Cole o conteúdo de [`supabase/migrations/0004_payment_categories.sql`](./supabase/migrations/0004_payment_categories.sql) e execute. Adiciona as categorias padrão **Serviços**, **Empréstimo**, **Cartão de Crédito** e **Cartão de Loja** — as duas últimas são usadas pelo Controle de Pagamento para criar/vincular automaticamente um Cartão (menu Faturas). Essa migration atualiza também os usuários já existentes, não só os futuros.
+6. Por fim, cole o conteúdo de [`supabase/migrations/0005_recurring_payment_debt_link.sql`](./supabase/migrations/0005_recurring_payment_debt_link.sql) e execute. Permite vincular uma cobrança recorrente (categoria **Empréstimo**) a uma Dívida existente: ao marcar a cobrança como paga, o valor pago é debitado automaticamente do saldo devedor da dívida (e revertido ao desfazer, corrigir ou excluir o pagamento).
+7. As migrations são idempotentes onde razoável (`create table if not exists`, `drop policy if exists` + `create policy`, `create or replace function`) — podem ser executadas novamente sem duplicar objetos.
+8. Confirme que não houve erros e que as tabelas apareceram em **Table Editor**.
+9. Confirme também que o bucket foi criado: menu lateral → **Storage** → deve aparecer um bucket chamado **faturas** (privado). Se por algum motivo ele não aparecer (raro, depende de permissões do plano), crie manualmente: **Storage → New bucket → nome `faturas` → Private** — as policies de acesso já foram criadas pela migration e funcionam independente de quando o bucket foi criado.
 
 > Alternativamente, com a [Supabase CLI](https://supabase.com/docs/guides/cli) instalada: `supabase link --project-ref <seu-projeto>` e depois `supabase db push` (aplica todas as migrations da pasta de uma vez).
 

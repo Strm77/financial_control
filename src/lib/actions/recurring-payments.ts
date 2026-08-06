@@ -83,6 +83,7 @@ export async function createRecurringPaymentAction(
       user_id: user.id,
       category_id: parsed.data.categoryId ?? null,
       card_id: cardId,
+      debt_id: parsed.data.debtId ?? null,
       description: parsed.data.description,
       payment_type: parsed.data.paymentType,
       amount_cents: parsed.data.amountCents,
@@ -121,6 +122,7 @@ export async function updateRecurringPaymentAction(
     .update({
       category_id: parsed.data.categoryId ?? null,
       card_id: cardId,
+      debt_id: parsed.data.debtId ?? null,
       description: parsed.data.description,
       payment_type: parsed.data.paymentType,
       amount_cents: parsed.data.amountCents,
@@ -146,11 +148,12 @@ export async function deleteRecurringPaymentAction(id: string): Promise<ActionRe
   const { supabase, user } = await requireUser();
   if (!user) return { success: false, message: SESSION_EXPIRED_MESSAGE };
 
-  const { error } = await supabase.from("recurring_payments").delete().eq("id", id).eq("user_id", user.id);
+  const { error } = await supabase.rpc("delete_recurring_payment", { p_id: id });
   if (error) return { success: false, message: "Não foi possível excluir a cobrança." };
 
   revalidatePath("/pagamentos");
   revalidatePath("/dashboard");
+  revalidatePath("/dividas");
   return { success: true };
 }
 
@@ -200,22 +203,24 @@ export async function markPaymentPaidAction(
 
   const status = inferPaymentStatus(recurringPayment.amount_cents, parsed.data.amountPaidCents, parsed.data.hasDiscount ?? false);
 
-  const { error } = await supabase.from("payment_records").upsert(
-    {
-      user_id: user.id,
-      recurring_payment_id: recurringPaymentId,
-      reference_month: referenceMonth,
-      paid_at: parsed.data.paidAt,
-      amount_paid_cents: parsed.data.amountPaidCents,
-      status,
-    },
-    { onConflict: "recurring_payment_id,reference_month" }
-  );
+  const { error } = await supabase.rpc("mark_recurring_payment_paid", {
+    p_recurring_payment_id: recurringPaymentId,
+    p_reference_month: referenceMonth,
+    p_paid_at: parsed.data.paidAt,
+    p_amount_paid_cents: parsed.data.amountPaidCents,
+    p_status: status,
+  });
 
-  if (error) return { success: false, message: "Não foi possível registrar o pagamento." };
+  if (error) {
+    const message = error.message.includes("maior que o saldo devedor")
+      ? "O valor pago é maior que o saldo devedor da dívida vinculada."
+      : "Não foi possível registrar o pagamento.";
+    return { success: false, message };
+  }
 
   revalidatePath("/pagamentos");
   revalidatePath("/dashboard");
+  revalidatePath("/dividas");
   return { success: true };
 }
 
@@ -223,16 +228,15 @@ export async function undoPaymentAction(recurringPaymentId: string, referenceMon
   const { supabase, user } = await requireUser();
   if (!user) return { success: false, message: SESSION_EXPIRED_MESSAGE };
 
-  const { error } = await supabase
-    .from("payment_records")
-    .delete()
-    .eq("recurring_payment_id", recurringPaymentId)
-    .eq("reference_month", referenceMonth)
-    .eq("user_id", user.id);
+  const { error } = await supabase.rpc("undo_recurring_payment", {
+    p_recurring_payment_id: recurringPaymentId,
+    p_reference_month: referenceMonth,
+  });
 
   if (error) return { success: false, message: "Não foi possível desfazer o pagamento." };
 
   revalidatePath("/pagamentos");
   revalidatePath("/dashboard");
+  revalidatePath("/dividas");
   return { success: true };
 }

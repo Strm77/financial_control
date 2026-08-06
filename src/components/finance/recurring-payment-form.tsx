@@ -13,13 +13,16 @@ import { FieldError } from "@/components/ui/field-error";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { DateInput } from "@/components/ui/date-input";
 import { toDateOnlyString } from "@/lib/formatters/date";
-import type { Category, Card as CardEntity } from "@/types/entities";
+import { centsToBRL } from "@/lib/formatters/currency";
+import type { Category, Card as CardEntity, Debt } from "@/types/entities";
 
 const CARD_CATEGORY_NAMES = ["Cartão de Crédito", "Cartão de Loja"];
+const LOAN_CATEGORY_NAME = "Empréstimo";
 
 export interface RecurringPaymentFormProps {
   expenseCategories: Category[];
   cards: CardEntity[];
+  debts: Debt[];
   defaultValues?: Partial<RecurringPaymentFormValues>;
   onSubmit: (values: RecurringPaymentFormValues) => Promise<void>;
   onCancel: () => void;
@@ -29,6 +32,7 @@ export interface RecurringPaymentFormProps {
 export function RecurringPaymentForm({
   expenseCategories,
   cards,
+  debts,
   defaultValues,
   onSubmit,
   onCancel,
@@ -48,6 +52,7 @@ export function RecurringPaymentForm({
       amountCents: defaultValues?.amountCents ?? 0,
       categoryId: defaultValues?.categoryId ?? null,
       cardId: defaultValues?.cardId ?? null,
+      debtId: defaultValues?.debtId ?? null,
       dueDay: defaultValues?.dueDay ?? 1,
       startDate: defaultValues?.startDate ?? toDateOnlyString(new Date()),
       endDate: defaultValues?.endDate ?? null,
@@ -57,8 +62,11 @@ export function RecurringPaymentForm({
 
   const description = watch("description");
   const categoryId = watch("categoryId");
+  const debtId = watch("debtId");
   const selectedCategory = expenseCategories.find((c) => c.id === categoryId);
   const isCardCategory = !!selectedCategory && CARD_CATEGORY_NAMES.includes(selectedCategory.name);
+  const isLoanCategory = !!selectedCategory && selectedCategory.name === LOAN_CATEGORY_NAME;
+  const availableDebts = debts.filter((d) => d.status === "active" || d.id === debtId);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -150,6 +158,27 @@ export function RecurringPaymentForm({
               </div>
               <p className="mt-1.5 text-xs text-muted-foreground">
                 Um cartão com o mesmo nome da descrição é criado/vinculado automaticamente em Faturas.
+              </p>
+            </>
+          ) : isLoanCategory ? (
+            <>
+              <Label htmlFor="debtId">Dívida vinculada</Label>
+              <Controller
+                control={control}
+                name="debtId"
+                render={({ field }) => (
+                  <Select id="debtId" value={field.value ?? ""} onChange={(e) => field.onChange(e.target.value || null)}>
+                    <option value="">Nenhuma</option>
+                    {availableDebts.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.name} — saldo {centsToBRL(d.current_balance_cents)}
+                      </option>
+                    ))}
+                  </Select>
+                )}
+              />
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Ao marcar como paga, o valor pago é debitado do saldo devedor dessa dívida.
               </p>
             </>
           ) : (

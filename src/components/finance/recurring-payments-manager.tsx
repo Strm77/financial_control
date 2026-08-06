@@ -40,7 +40,7 @@ import { computeDiscountCents } from "@/lib/finance/payment-progress";
 import { centsToBRL } from "@/lib/formatters/currency";
 import { formatDateBR } from "@/lib/formatters/date";
 import { PAYMENT_TYPE_LABELS, type RecurringPaymentFormValues, type MarkPaymentPaidFormValues } from "@/lib/validations/recurring-payment";
-import type { Category, Card as CardEntity, PaymentRecord, RecurringPayment } from "@/types/entities";
+import type { Category, Card as CardEntity, Debt, PaymentRecord, RecurringPayment } from "@/types/entities";
 import { monthPeriodRange, type MonthPeriod } from "@/lib/finance/month";
 import { cn } from "@/lib/utils";
 
@@ -62,6 +62,7 @@ export function RecurringPaymentsManager({
   expenseCategories,
   categoriesById,
   cards,
+  debts,
   period,
   referenceMonth,
   now,
@@ -72,6 +73,7 @@ export function RecurringPaymentsManager({
   expenseCategories: Category[];
   categoriesById: Map<string, Category>;
   cards: CardEntity[];
+  debts: Debt[];
   period: MonthPeriod;
   referenceMonth: string;
   now: Date;
@@ -415,6 +417,7 @@ export function RecurringPaymentsManager({
           <RecurringPaymentForm
             expenseCategories={expenseCategories}
             cards={cards}
+            debts={debts}
             defaultValues={
               editState.mode === "edit" && editState.payment
                 ? {
@@ -423,6 +426,7 @@ export function RecurringPaymentsManager({
                     amountCents: editState.payment.amount_cents,
                     categoryId: editState.payment.category_id,
                     cardId: editState.payment.card_id,
+                    debtId: editState.payment.debt_id,
                     dueDay: editState.payment.due_day,
                     startDate: editState.payment.start_date,
                     endDate: editState.payment.end_date,

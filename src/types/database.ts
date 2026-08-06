@@ -101,6 +101,7 @@ export interface Database {
           user_id: string;
           category_id: string | null;
           card_id: string | null;
+          debt_id: string | null;
           description: string;
           amount_cents: number;
           due_day: number;
@@ -118,6 +119,7 @@ export interface Database {
           user_id: string;
           category_id?: string | null;
           card_id?: string | null;
+          debt_id?: string | null;
           description: string;
           amount_cents: number;
           due_day: number;
@@ -131,6 +133,7 @@ export interface Database {
         Update: {
           category_id?: string | null;
           card_id?: string | null;
+          debt_id?: string | null;
           description?: string;
           amount_cents?: number;
           due_day?: number;
@@ -151,6 +154,7 @@ export interface Database {
           paid_at: string | null;
           amount_paid_cents: number | null;
           status: PaymentRecordStatus;
+          debt_payment_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -162,11 +166,13 @@ export interface Database {
           paid_at?: string | null;
           amount_paid_cents?: number | null;
           status?: PaymentRecordStatus;
+          debt_payment_id?: string | null;
         };
         Update: {
           paid_at?: string | null;
           amount_paid_cents?: number | null;
           status?: PaymentRecordStatus;
+          debt_payment_id?: string | null;
         };
         Relationships: [];
       };
@@ -435,6 +441,29 @@ export interface Database {
       seed_default_categories: {
         Args: Record<string, never>;
         Returns: Database["public"]["Tables"]["categories"]["Row"][];
+      };
+      mark_recurring_payment_paid: {
+        Args: {
+          p_recurring_payment_id: string;
+          p_reference_month: string;
+          p_paid_at: string;
+          p_amount_paid_cents: number;
+          p_status: string;
+        };
+        Returns: Database["public"]["Tables"]["payment_records"]["Row"];
+      };
+      undo_recurring_payment: {
+        Args: {
+          p_recurring_payment_id: string;
+          p_reference_month: string;
+        };
+        Returns: undefined;
+      };
+      delete_recurring_payment: {
+        Args: {
+          p_id: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: Record<string, never>;
