@@ -2,7 +2,7 @@
 
 Aplicativo web de gerenciamento financeiro pessoal para **dois usuários previamente cadastrados**, com isolamento de dados garantido pelo PostgreSQL via **Row Level Security (RLS)** — não apenas por filtros no frontend.
 
-Construído com Next.js 16 (App Router), React 19, TypeScript estrito, Tailwind CSS, Supabase (Postgres + Auth), React Hook Form, Zod, Recharts e um design system próprio em estilo **Neumorfismo**, com dark mode e animações.
+Construído com Next.js 16 (App Router), React 19, TypeScript estrito, Tailwind CSS, Supabase (Postgres + Auth), React Hook Form, Zod, Recharts e um design system próprio em estilo **Holográfico**, com dark mode e animações.
 
 ## Stack
 
@@ -338,13 +338,14 @@ Cobre as funções puras mais importantes (`src/lib/formatters` e `src/lib/finan
 - cálculo de parcela atual/total de dívidas e compras parceladas;
 - inferência automática de status pago/parcial e cálculo de desconto no Controle de Pagamento.
 
-## Design: Neumorfismo
+## Design: Holográfico
 
-Tokens de design (cores, sombras, raios) ficam em `src/app/globals.css` como CSS custom properties (`--background`, `--primary`, `--shadow-flat`, `--shadow-inset` etc.), consumidas pelo Tailwind via `@theme inline`. Características:
+Tokens de design (cores, sombras, raios) ficam em `src/app/globals.css` como CSS custom properties (`--background`, `--primary`, `--shadow-flat`, `--shadow-inset` etc.), consumidas pelo Tailwind via `@theme inline`. Paleta neon (Electric Cobalt, Synth Magenta, Toxic Amber + derivados para success/warning/danger) sobre base neutra (Void Black no dark / Holographic Pearl no light). Características:
 
-- superfícies "extrudadas" ou "afundadas" a partir do próprio fundo, usando pares de sombra clara/escura (`--neu-light` / `--neu-dark`) em vez de bordas duras — classes utilitárias `.neu-surface`, `.neu-shadow`/`-sm`/`-lg`/`-inset`;
-- cantos bem arredondados (`--radius: 20px`) e paleta de baixo contraste, sem gradientes nem glassmorphism;
-- hover/press aprofunda ou eleva a sombra via a classe utilitária `.neu-press`, em vez de deslocar o elemento;
+- **fundo do sistema**: manchas radiais borradas atrás de todo o conteúdo (`--holo-wash`, aplicado via `body::before`) — bem sutis no light mode, mais vívidas no dark mode (Void Black realça o neon). Como as superfícies (cards, inputs) são opacas, o glow só aparece nos vãos ao redor delas;
+- superfícies com borda fina (`--border`) + sombra ambiente suave (`--shadow-ambient`) em vez da sombra dupla "almofada" do neumorfismo — classes utilitárias `.neu-surface`, `.neu-shadow`/`-sm`/`-lg`/`-inset` (nomes herdados da versão anterior, receita interna trocada). Um glow colorido (`--glow`, via `color-mix`) fica reservado a elementos de destaque (`.neu-shadow-lg`, nav ativo) para não deixar a interface inteira brilhando;
+- cantos bem arredondados (`--radius: 20px`);
+- hover/press troca a sombra via a classe utilitária `.neu-press`, com leve elevação (`translateY`);
 - micro-animações discretas: entrada de conteúdo (`.animate-fade-in-up`), abertura/fechamento de modais (`.animate-overlay`, `.animate-dialog`) dirigidas pelo atributo `data-state` do Radix UI, todas desativadas automaticamente quando o usuário prefere movimento reduzido (`prefers-reduced-motion`);
 - foco de teclado sempre visível (`outline` em `--secondary`);
 - **dark mode** funcional via atributo `data-theme` no elemento `<html>`, com paleta própria (`:root[data-theme="dark"]`), alternância manual pelo botão de sol/lua no cabeçalho, persistência em `localStorage` e um script inline no `<head>` (ver `src/app/layout.tsx`) que aplica o tema antes da primeira pintura para evitar flash de conteúdo (segue o padrão oficial do Next.js para prevenção de flash antes da hidratação).

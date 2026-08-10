@@ -1,54 +1,63 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------- */
-/* Design tokens — Neumorfismo "Dona Grana"                               */
-/* Paleta ancorada em tons de dinheiro/crescimento (verde esmeralda +     */
-/* pergaminho quente), não no cinza-azulado genérico do neumorfismo       */
-/* padrão. Sombra dupla suave (clara + escura) simula relevo físico.      */
+/* Design tokens — "Holográfico"                                          */
+/* Paleta neon sobre base neutra (Void Black / Holographic Pearl):        */
+/* Electric Cobalt, Synth Magenta e Toxic Amber como cromáticas primárias;*/
+/* Success/Warning/Danger derivam tons próximos da mesma família para não */
+/* colidir com primary/secondary/accent. Superfícies usam borda fina +    */
+/* glow (não mais a sombra dupla "almofada" do neumorfismo).              */
 /* ---------------------------------------------------------------------- */
 :root {
-  --background: #e9e4d8;
-  --background-alt: #e2ddd0;
-  --foreground: #2b2620;
+  --background: #f5f7ff;
+  --background-alt: #eceefb;
+  --foreground: #0b0d14;
 
-  --primary: #7c1f3d;
+  --primary: #3d5afe;
   --primary-foreground: #ffffff;
 
-  --secondary: #2f6f8a;
+  --secondary: #ff2fa3;
   --secondary-foreground: #ffffff;
 
-  --accent: #d9633b;
-  --accent-foreground: #ffffff;
+  --accent: #ff8a1e;
+  --accent-foreground: #2b1400;
 
-  --success: #2fa66b;
-  --success-foreground: #ffffff;
+  --success: #0fbf9f;
+  --success-foreground: #052019;
 
-  --warning: #c98a2e;
-  --warning-foreground: #2b2000;
+  --warning: #ffb100;
+  --warning-foreground: #2b1d00;
 
-  --danger: #c1443a;
+  --danger: #ff3b5c;
   --danger-foreground: #ffffff;
 
-  --muted: #ded8c9;
-  --muted-foreground: #6b6355;
+  --muted: #e4e7f6;
+  --muted-foreground: #5b6472;
 
-  --card: #e9e4d8;
-  --card-foreground: #2b2620;
+  --card: #fcfdff;
+  --card-foreground: #0b0d14;
 
-  --border: #cfc8b7;
+  --border: #d7dcee;
   --border-width: 1px;
 
-  /* Fonte de luz do neumorfismo: realce quente (canto superior-esquerdo) e
-     sombra quente (canto inferior-direito), derivadas do próprio fundo. */
-  --neu-light: #fbf8f0;
-  --neu-dark: #c6bfae;
+  /* Elevação das superfícies: borda fina + sombra ambiente suave. O glow
+     colorido (--glow) fica reservado a elementos de destaque (.neu-shadow-lg,
+     nav ativo) para não deixar a interface inteira brilhando. */
+  --shadow-ambient: rgba(15, 23, 42, 0.12);
+  --glow: var(--primary);
 
-  --shadow-color: #14110c;
-  --shadow-flat-sm: 4px 4px 8px var(--neu-dark), -4px -4px 8px var(--neu-light);
-  --shadow-flat: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
-  --shadow-flat-lg: 14px 14px 28px var(--neu-dark), -14px -14px 28px var(--neu-light);
-  --shadow-inset-sm: inset 2.5px 2.5px 5px var(--neu-dark), inset -2.5px -2.5px 5px var(--neu-light);
-  --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
+  --shadow-flat-sm: 0 1px 2px var(--shadow-ambient), 0 0 0 1px var(--border);
+  --shadow-flat: 0 4px 12px -2px var(--shadow-ambient), 0 0 0 1px var(--border);
+  --shadow-flat-lg: 0 10px 26px -6px var(--shadow-ambient), 0 0 0 1px var(--border),
+    0 0 32px -10px color-mix(in srgb, var(--glow) 45%, transparent);
+  --shadow-inset-sm: inset 0 0 0 1px var(--border);
+  --shadow-inset: inset 0 0 0 1px var(--border), inset 0 1px 3px var(--shadow-ambient);
+
+  /* Manchas radiais borradas atrás do conteúdo — o "fundo holográfico" do
+     sistema. Bem sutil no light mode para não sujar o Holographic Pearl. */
+  --holo-wash: radial-gradient(60% 45% at 88% -8%, color-mix(in srgb, #3d5afe 12%, transparent), transparent 70%),
+    radial-gradient(55% 42% at 4% 18%, color-mix(in srgb, #ff2fa3 10%, transparent), transparent 70%),
+    radial-gradient(52% 38% at 48% 112%, color-mix(in srgb, #ff8a1e 9%, transparent), transparent 70%);
 
   --radius: 20px;
   --radius-sm: 12px;
@@ -59,53 +68,59 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Painel sólido flat atrás do Month Selector. */
-  --month-panel-bg: var(--muted);
-  --month-panel-foreground: var(--foreground);
+  --month-panel-bg: #e4e9ff;
+  --month-panel-foreground: #0b0d14;
 }
 
 :root[data-theme="dark"] {
-  --background: #201d18;
-  --background-alt: #262219;
-  --foreground: #ece6d8;
+  --background: #06070a;
+  --background-alt: #10121b;
+  --foreground: #edeffb;
 
-  --primary: #c2416a;
-  --primary-foreground: #2b0512;
+  --primary: #5c7bff;
+  --primary-foreground: #ffffff;
 
-  --secondary: #4fa2c2;
-  --secondary-foreground: #061419;
+  --secondary: #ff4fb3;
+  --secondary-foreground: #2b0518;
 
-  --accent: #e8825c;
-  --accent-foreground: #2b0f04;
+  --accent: #ffa34d;
+  --accent-foreground: #2b1400;
 
-  --success: #45c184;
-  --success-foreground: #062015;
+  --success: #2ee6c8;
+  --success-foreground: #032019;
 
-  --warning: #e0ab52;
-  --warning-foreground: #2b1c00;
+  --warning: #ffce6b;
+  --warning-foreground: #2b1d00;
 
-  --danger: #e2685c;
-  --danger-foreground: #2b0908;
+  --danger: #ff5c79;
+  --danger-foreground: #2b0509;
 
-  --muted: #2b2720;
-  --muted-foreground: #ab9f8b;
+  --muted: #171a24;
+  --muted-foreground: #9aa3b5;
 
-  --card: #201d18;
-  --card-foreground: #ece6d8;
+  --card: #0d0f16;
+  --card-foreground: #edeffb;
 
-  --border: #3a352b;
+  --border: #262b38;
 
-  --neu-light: #2c2820;
-  --neu-dark: #121009;
+  --shadow-ambient: rgba(0, 0, 0, 0.55);
+  --glow: var(--primary);
 
-  --shadow-color: #000000;
-  --shadow-flat-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
-  --shadow-flat: 7px 7px 16px var(--neu-dark), -7px -7px 16px var(--neu-light);
-  --shadow-flat-lg: 14px 14px 30px var(--neu-dark), -14px -14px 30px var(--neu-light);
-  --shadow-inset-sm: inset 2.5px 2.5px 6px var(--neu-dark), inset -2.5px -2.5px 6px var(--neu-light);
-  --shadow-inset: inset 4px 4px 9px var(--neu-dark), inset -4px -4px 9px var(--neu-light);
+  --shadow-flat-sm: 0 1px 2px var(--shadow-ambient), 0 0 0 1px var(--border);
+  --shadow-flat: 0 4px 14px -2px var(--shadow-ambient), 0 0 0 1px var(--border);
+  --shadow-flat-lg: 0 12px 30px -6px var(--shadow-ambient), 0 0 0 1px var(--border),
+    0 0 40px -8px color-mix(in srgb, var(--glow) 55%, transparent);
+  --shadow-inset-sm: inset 0 0 0 1px var(--border);
+  --shadow-inset: inset 0 0 0 1px var(--border), inset 0 1px 3px var(--shadow-ambient);
 
-  --month-panel-bg: #3a2a56;
-  --month-panel-foreground: #f1eaff;
+  /* No dark mode o Void Black realça o neon — manchas mais vívidas, como na
+     imagem de referência. */
+  --holo-wash: radial-gradient(60% 45% at 88% -8%, color-mix(in srgb, #3d5afe 32%, transparent), transparent 70%),
+    radial-gradient(55% 42% at 4% 18%, color-mix(in srgb, #ff2fa3 26%, transparent), transparent 70%),
+    radial-gradient(52% 38% at 48% 112%, color-mix(in srgb, #ff8a1e 24%, transparent), transparent 70%);
+
+  --month-panel-bg: #1b2350;
+  --month-panel-foreground: #edeffb;
 }
 
 @theme inline {
@@ -162,10 +177,24 @@ html[data-theme="dark"] .theme-icon-dark {
 }
 
 body {
+  position: relative;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
   transition: background-color 240ms var(--ease-out), color 240ms var(--ease-out);
+}
+
+/* Fundo holográfico do sistema: manchas radiais fixas atrás de todo o
+   conteúdo. Como as superfícies (.neu-surface/bg-card etc.) são opacas, o
+   glow só aparece nos vãos ao redor dos cards — igual à imagem de referência. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--holo-wash);
+  transition: background-image 240ms var(--ease-out);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -174,7 +203,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.01em;
 }
 
-/* Foco de teclado sempre visível, inclusive sobre superfícies neumórficas */
+/* Foco de teclado sempre visível, inclusive sobre superfícies com glow */
 :focus-visible {
   outline: 3px solid var(--secondary);
   outline-offset: 3px;
@@ -186,11 +215,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ---------------------------------------------------------------------- */
-/* Sistema neumórfico                                                     */
-/* A ordem das regras importa: quando um elemento combina .neu-surface com */
-/* uma classe .neu-shadow*, a sombra explícita (definida depois) vence a   */
-/* sombra "recuada" padrão — dando relevo a cards/botões e um efeito       */
-/* "afundado" a inputs/badges/ícones que não pedem sombra própria.         */
+/* Sistema de superfícies (borda fina + glow)                             */
+/* Os nomes de classe (.neu-*) ficaram do design neumórfico anterior, mas  */
+/* a receita agora é borda fina + sombra ambiente + glow colorido opcional */
+/* (via --glow), não mais a sombra dupla "almofada". A ordem das regras    */
+/* importa: quando um elemento combina .neu-surface com uma classe         */
+/* .neu-shadow*, a sombra explícita (definida depois) vence a sombra       */
+/* "recuada" padrão — dando relevo a cards/botões e um contorno fino a     */
+/* inputs/badges/ícones que não pedem sombra própria.                      */
 /* ---------------------------------------------------------------------- */
 .neu-surface {
   border: var(--border-width) solid transparent;

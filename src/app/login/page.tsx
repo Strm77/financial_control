@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       : undefined;
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
+    <main className="min-h-screen flex items-center justify-center px-4 py-12">
       <LoginForm initialError={initialError} />
     </main>
   );
