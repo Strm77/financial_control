@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { useAuth } from '../context/AuthContext'
 import {
   createCardExpense,
   deleteCardExpense,
@@ -7,7 +6,7 @@ import {
   importFatura,
   type CardExpense,
 } from '../api/cardExpensesApi'
-import { ApiError } from '../api/authApi'
+import { ApiError } from '../api/client'
 import type { Payment } from '../api/paymentsApi'
 import { IconTrash, IconUpload } from './icons'
 import { formatCurrency } from '../utils/format'
@@ -16,7 +15,6 @@ import './CardExpensePanel.css'
 const EMPTY_FORM = { descricao: '', valor: '', parcelaAtual: '', numeroParcelas: '' }
 
 export function CardExpensePanel({ payment }: { payment: Payment }) {
-  const { token } = useAuth()
   const [expenses, setExpenses] = useState<CardExpense[]>([])
   const [form, setForm] = useState(EMPTY_FORM)
   const [error, setError] = useState<string | null>(null)
@@ -26,15 +24,14 @@ export function CardExpensePanel({ payment }: { payment: Payment }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (!token) return
     let cancelled = false
-    fetchCardExpenses(token, payment.id).then((data) => {
+    fetchCardExpenses(payment.id).then((data) => {
       if (!cancelled) setExpenses(data)
     })
     return () => {
       cancelled = true
     }
-  }, [token, payment.id])
+  }, [payment.id])
 
   const total = expenses.reduce((sum, expense) => sum + expense.valorCents, 0)
 
@@ -58,7 +55,7 @@ export function CardExpensePanel({ payment }: { payment: Payment }) {
 
     setIsSubmitting(true)
     try {
-      const created = await createCardExpense(token!, {
+      const created = await createCardExpense({
         paymentId: payment.id,
         descricao: form.descricao,
         valorCents,
@@ -76,7 +73,7 @@ export function CardExpensePanel({ payment }: { payment: Payment }) {
 
   async function handleDelete(id: number) {
     setExpenses((prev) => prev.filter((expense) => expense.id !== id))
-    await deleteCardExpense(token!, id)
+    await deleteCardExpense(id)
   }
 
   async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -87,7 +84,7 @@ export function CardExpensePanel({ payment }: { payment: Payment }) {
     setImportMessage(null)
     setIsImporting(true)
     try {
-      const result = await importFatura(token!, payment.id, file)
+      const result = await importFatura(payment.id, file)
       if (result.expenses.length > 0) {
         setExpenses((prev) => [...result.expenses, ...prev])
       }

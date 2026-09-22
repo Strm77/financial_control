@@ -1,5 +1,4 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useMonth } from '../context/MonthContext'
 import {
   createPayment,
@@ -9,7 +8,7 @@ import {
   type Payment,
   type PaymentStatus,
 } from '../api/paymentsApi'
-import { ApiError } from '../api/authApi'
+import { ApiError } from '../api/client'
 import { IconEdit, IconTrash } from './icons'
 import { formatCurrency, formatDate } from '../utils/format'
 import './PaymentsTable.css'
@@ -40,7 +39,6 @@ function toCents(value: string): number {
 }
 
 export function PaymentsTable() {
-  const { token } = useAuth()
   const { selectedMonth, year, monthLabel } = useMonth()
 
   const [payments, setPayments] = useState<Payment[]>([])
@@ -50,15 +48,14 @@ export function PaymentsTable() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!token) return
     let cancelled = false
-    fetchPayments(token).then((data) => {
+    fetchPayments().then((data) => {
       if (!cancelled) setPayments(data)
     })
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [])
 
   function startEdit(payment: Payment) {
     setEditingId(payment.id)
@@ -106,11 +103,11 @@ export function PaymentsTable() {
       }
 
       if (editingId !== null) {
-        const updated = await updatePayment(token!, editingId, payload)
+        const updated = await updatePayment(editingId, payload)
         setPayments((prev) => prev.map((payment) => (payment.id === editingId ? updated : payment)))
         setEditingId(null)
       } else {
-        const created = await createPayment(token!, payload)
+        const created = await createPayment(payload)
         setPayments((prev) => [...prev, created])
       }
 
@@ -125,7 +122,7 @@ export function PaymentsTable() {
   async function handleDelete(id: number) {
     if (editingId === id) cancelEdit()
     setPayments((prev) => prev.filter((payment) => payment.id !== id))
-    await deletePayment(token!, id)
+    await deletePayment(id)
   }
 
   const filtered = payments

@@ -1,10 +1,9 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
-import { requireAuth } from '../auth.js';
 
 export const incomesRouter = Router();
 
-incomesRouter.get('/', requireAuth, async (_req, res) => {
+incomesRouter.get('/', async (_req, res) => {
   const { rows } = await pool.query(
     `SELECT id, fonte, categoria, tipo, amount_cents AS "amountCents", received_date AS "receivedDate"
      FROM incomes
@@ -14,7 +13,7 @@ incomesRouter.get('/', requireAuth, async (_req, res) => {
   res.json({ incomes: rows });
 });
 
-incomesRouter.post('/', requireAuth, async (req, res) => {
+incomesRouter.post('/', async (req, res) => {
   const { fonte, categoria, tipo, amountCents } = req.body ?? {};
 
   const isValidText = (value) => typeof value === 'string' && value.trim().length > 0;
@@ -52,7 +51,7 @@ incomesRouter.post('/', requireAuth, async (req, res) => {
   });
 });
 
-incomesRouter.patch('/:id', requireAuth, async (req, res) => {
+incomesRouter.patch('/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
@@ -101,7 +100,7 @@ incomesRouter.patch('/:id', requireAuth, async (req, res) => {
   });
 });
 
-incomesRouter.delete('/:id', requireAuth, async (req, res) => {
+incomesRouter.delete('/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });

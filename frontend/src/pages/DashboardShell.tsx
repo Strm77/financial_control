@@ -8,7 +8,6 @@ import { GastoMesPage } from '../components/GastoMesPage'
 import { DashboardPage } from '../components/DashboardPage'
 import { ThemeToggle } from '../components/ThemeToggle'
 import { IconDashboard, IconDebt, IconExpense, IconIncome, IconPayments, IconSettings } from '../components/icons'
-import { useAuth } from '../context/AuthContext'
 import { MonthProvider } from '../context/MonthContext'
 import { SettingsPage } from './SettingsPage'
 import './DashboardShell.css'
@@ -32,7 +31,6 @@ export function DashboardShell() {
 }
 
 function DashboardShellContent() {
-  const { user, logout } = useAuth()
   const [activeMenu, setActiveMenu] = useState(MENU_ITEMS[0].id)
 
   const activeItem = [...MENU_ITEMS, ...FOOTER_ITEMS].find((item) => item.id === activeMenu) ?? MENU_ITEMS[0]
@@ -55,15 +53,9 @@ function DashboardShellContent() {
 
         <div className="app-content">
           <header className="neo-panel app-topbar">
-            <div>
-              <span className="app-topbar__eyebrow">Olá, {user?.username}</span>
-              <h1>{activeItem.label}</h1>
-            </div>
+            <h1>{activeItem.label}</h1>
             <div className="app-topbar__actions">
               <ThemeToggle />
-              <button type="button" className="logout-button" onClick={logout}>
-                Sair
-              </button>
             </div>
           </header>
 

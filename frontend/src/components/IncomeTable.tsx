@@ -1,9 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useMonth } from '../context/MonthContext'
 import { useSelectOptions } from '../hooks/useSelectOptions'
 import { createIncome, deleteIncome, fetchIncomes, updateIncome, type Income } from '../api/incomesApi'
-import { ApiError } from '../api/authApi'
+import { ApiError } from '../api/client'
 import { IconEdit, IconTrash } from './icons'
 import { formatCurrency, formatDate } from '../utils/format'
 import './IncomeTable.css'
@@ -11,7 +10,6 @@ import './IncomeTable.css'
 const EMPTY_FORM = { fonte: '', categoria: '', tipo: '', valor: '' }
 
 export function IncomeTable() {
-  const { token } = useAuth()
   const { selectedMonth, year, monthLabel } = useMonth()
   const { byField } = useSelectOptions('renda')
 
@@ -22,15 +20,14 @@ export function IncomeTable() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!token) return
     let cancelled = false
-    fetchIncomes(token).then((data) => {
+    fetchIncomes().then((data) => {
       if (!cancelled) setIncomes(data)
     })
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [])
 
   const fonteOptions = byField('fonte')
   const categoriaOptions = byField('categoria')
@@ -69,11 +66,11 @@ export function IncomeTable() {
       const payload = { fonte: form.fonte, categoria: form.categoria, tipo: form.tipo, amountCents }
 
       if (editingId !== null) {
-        const updated = await updateIncome(token!, editingId, payload)
+        const updated = await updateIncome(editingId, payload)
         setIncomes((prev) => prev.map((income) => (income.id === editingId ? updated : income)))
         setEditingId(null)
       } else {
-        const created = await createIncome(token!, payload)
+        const created = await createIncome(payload)
         setIncomes((prev) => [created, ...prev])
       }
 
@@ -88,7 +85,7 @@ export function IncomeTable() {
   async function handleDelete(id: number) {
     if (editingId === id) cancelEdit()
     setIncomes((prev) => prev.filter((income) => income.id !== id))
-    await deleteIncome(token!, id)
+    await deleteIncome(id)
   }
 
   const filtered = incomes.filter((income) => {

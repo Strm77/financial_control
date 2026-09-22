@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import type { SelectOption } from '../api/settingsApi'
-import { ApiError } from '../api/authApi'
+import { ApiError } from '../api/client'
 import './OptionEditor.css'
 
 interface OptionEditorProps {

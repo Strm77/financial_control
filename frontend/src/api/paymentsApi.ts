@@ -1,4 +1,4 @@
-import { parseError } from './authApi'
+import { parseError } from './client'
 
 export type PaymentStatus = 'pago' | 'atrasado' | 'parcial' | 'pendente'
 
@@ -25,10 +25,8 @@ export interface NewPayment {
   dueDate: string
 }
 
-export async function fetchPayments(token: string): Promise<Payment[]> {
-  const response = await fetch('/api/payments', {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+export async function fetchPayments(): Promise<Payment[]> {
+  const response = await fetch('/api/payments')
 
   if (!response.ok) {
     await parseError(response)
@@ -38,10 +36,10 @@ export async function fetchPayments(token: string): Promise<Payment[]> {
   return data.payments
 }
 
-export async function createPayment(token: string, payment: NewPayment): Promise<Payment> {
+export async function createPayment(payment: NewPayment): Promise<Payment> {
   const response = await fetch('/api/payments', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payment),
   })
 
@@ -53,10 +51,10 @@ export async function createPayment(token: string, payment: NewPayment): Promise
   return data.payment
 }
 
-export async function updatePayment(token: string, id: number, payment: NewPayment): Promise<Payment> {
+export async function updatePayment(id: number, payment: NewPayment): Promise<Payment> {
   const response = await fetch(`/api/payments/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payment),
   })
 
@@ -68,10 +66,9 @@ export async function updatePayment(token: string, id: number, payment: NewPayme
   return data.payment
 }
 
-export async function deletePayment(token: string, id: number): Promise<void> {
+export async function deletePayment(id: number): Promise<void> {
   const response = await fetch(`/api/payments/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
   })
 
   if (!response.ok) {

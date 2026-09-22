@@ -1,13 +1,12 @@
 import { Router } from 'express';
 import { pool } from '../db.js';
-import { requireAuth } from '../auth.js';
 
 export const settingsRouter = Router();
 
 const ALLOWED_SECTIONS = ['renda'];
 const ALLOWED_FIELDS = ['fonte', 'categoria', 'tipo'];
 
-settingsRouter.get('/options', requireAuth, async (req, res) => {
+settingsRouter.get('/options', async (req, res) => {
   const section = String(req.query.section ?? '');
   if (!ALLOWED_SECTIONS.includes(section)) {
     return res.status(400).json({ message: 'Seção inválida.' });
@@ -21,7 +20,7 @@ settingsRouter.get('/options', requireAuth, async (req, res) => {
   res.json({ options: rows });
 });
 
-settingsRouter.post('/options', requireAuth, async (req, res) => {
+settingsRouter.post('/options', async (req, res) => {
   const { section, field, label } = req.body ?? {};
 
   if (
@@ -53,7 +52,7 @@ settingsRouter.post('/options', requireAuth, async (req, res) => {
   });
 });
 
-settingsRouter.delete('/options/:id', requireAuth, async (req, res) => {
+settingsRouter.delete('/options/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });

@@ -1,4 +1,4 @@
-import { parseError } from './authApi'
+import { parseError } from './client'
 
 export interface CardExpense {
   id: number
@@ -18,10 +18,8 @@ export interface NewCardExpense {
   numeroParcelas: number | null
 }
 
-export async function fetchCardExpenses(token: string, paymentId: number): Promise<CardExpense[]> {
-  const response = await fetch(`/api/card-expenses?paymentId=${paymentId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+export async function fetchCardExpenses(paymentId: number): Promise<CardExpense[]> {
+  const response = await fetch(`/api/card-expenses?paymentId=${paymentId}`)
 
   if (!response.ok) {
     await parseError(response)
@@ -31,10 +29,8 @@ export async function fetchCardExpenses(token: string, paymentId: number): Promi
   return data.expenses
 }
 
-export async function fetchAllCardExpenses(token: string): Promise<CardExpense[]> {
-  const response = await fetch('/api/card-expenses', {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+export async function fetchAllCardExpenses(): Promise<CardExpense[]> {
+  const response = await fetch('/api/card-expenses')
 
   if (!response.ok) {
     await parseError(response)
@@ -44,10 +40,10 @@ export async function fetchAllCardExpenses(token: string): Promise<CardExpense[]
   return data.expenses
 }
 
-export async function createCardExpense(token: string, expense: NewCardExpense): Promise<CardExpense> {
+export async function createCardExpense(expense: NewCardExpense): Promise<CardExpense> {
   const response = await fetch('/api/card-expenses', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(expense),
   })
 
@@ -59,10 +55,9 @@ export async function createCardExpense(token: string, expense: NewCardExpense):
   return data.expense
 }
 
-export async function deleteCardExpense(token: string, id: number): Promise<void> {
+export async function deleteCardExpense(id: number): Promise<void> {
   const response = await fetch(`/api/card-expenses/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
   })
 
   if (!response.ok) {
@@ -71,7 +66,6 @@ export async function deleteCardExpense(token: string, id: number): Promise<void
 }
 
 export async function importFatura(
-  token: string,
   paymentId: number,
   file: File,
 ): Promise<{ expenses: CardExpense[]; message?: string }> {
@@ -81,7 +75,6 @@ export async function importFatura(
 
   const response = await fetch('/api/card-expenses/import', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${token}` },
     body: formData,
   })
 

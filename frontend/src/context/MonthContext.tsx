@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { useAuth } from './AuthContext'
 import { fetchPayments, type Payment } from '../api/paymentsApi'
 
 export const MONTH_NAMES = [
@@ -51,7 +50,6 @@ function computePaymentStatus(payments: Payment[], year: number, month: number):
 }
 
 export function MonthProvider({ children }: { children: ReactNode }) {
-  const { token } = useAuth()
   const [payments, setPayments] = useState<Payment[]>([])
 
   const now = useMemo(() => new Date(), [])
@@ -61,10 +59,9 @@ export function MonthProvider({ children }: { children: ReactNode }) {
   const [selectedMonth, setSelectedMonth] = useState<SelectedMonth>(currentMonth)
 
   useEffect(() => {
-    if (!token) return
     let cancelled = false
 
-    fetchPayments(token)
+    fetchPayments()
       .then((data) => {
         if (!cancelled) setPayments(data)
       })
@@ -75,7 +72,7 @@ export function MonthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [])
 
   const getMonthStatus = (month: number): MonthStatus => {
     if (month < currentMonth) return 'gray'

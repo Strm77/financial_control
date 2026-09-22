@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
 import { ensureReady } from './db.js';
-import { authRouter } from './routes/auth.js';
 import { paymentsRouter } from './routes/payments.js';
 import { settingsRouter } from './routes/settings.js';
 import { incomesRouter } from './routes/incomes.js';
@@ -31,7 +30,6 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-app.use('/api/auth', authRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/settings', settingsRouter);
 app.use('/api/incomes', incomesRouter);

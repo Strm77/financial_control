@@ -1,5 +1,4 @@
 import pg from 'pg';
-import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
 
@@ -19,22 +18,6 @@ export const pool = new Pool({
 });
 
 const SCHEMA_SQL = `
-  CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  );
-
-  CREATE TABLE IF NOT EXISTS activity_log (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    event TEXT NOT NULL,
-    details TEXT,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-  );
-
   CREATE TABLE IF NOT EXISTS payments (
     id SERIAL PRIMARY KEY,
     descricao TEXT NOT NULL,
@@ -90,20 +73,6 @@ const SCHEMA_SQL = `
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   );
 `;
-
-const DEFAULT_USERS = [
-  { username: 'Brunno.', password: '7753955' },
-  { username: 'Carol.', password: '051297' },
-];
-
-async function seedDefaultUsers() {
-  for (const { username, password } of DEFAULT_USERS) {
-    const { rows } = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
-    if (rows.length > 0) continue;
-    const passwordHash = bcrypt.hashSync(password, 10);
-    await pool.query('INSERT INTO users (username, password_hash) VALUES ($1, $2)', [username, passwordHash]);
-  }
-}
 
 async function seedDemoPayments() {
   const { rows } = await pool.query('SELECT COUNT(*)::int AS count FROM payments');
@@ -225,7 +194,6 @@ export function ensureReady() {
   if (!readyPromise) {
     readyPromise = (async () => {
       await pool.query(SCHEMA_SQL);
-      await seedDefaultUsers();
       await seedDemoPayments();
       await seedIncomeOptions();
     })().catch((err) => {
@@ -234,16 +202,4 @@ export function ensureReady() {
     });
   }
   return readyPromise;
-}
-
-export async function logActivity(userId, event, details) {
-  try {
-    await pool.query('INSERT INTO activity_log (user_id, event, details) VALUES ($1, $2, $3)', [
-      userId ?? null,
-      event,
-      details ? JSON.stringify(details) : null,
-    ]);
-  } catch {
-    // O log de atividade é apenas informativo — nunca deve derrubar a requisição.
-  }
 }

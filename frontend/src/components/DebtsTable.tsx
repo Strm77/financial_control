@@ -1,8 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useMonth } from '../context/MonthContext'
 import { createDebt, deleteDebt, fetchDebts, updateDebt, type Debt } from '../api/debtsApi'
-import { ApiError } from '../api/authApi'
+import { ApiError } from '../api/client'
 import { IconEdit, IconTrash } from './icons'
 import { addMonthsToDate, formatCurrency, formatDate } from '../utils/format'
 import { getVisibleDebts } from '../utils/debts'
@@ -24,7 +23,6 @@ function toCents(value: string): number {
 }
 
 export function DebtsTable() {
-  const { token } = useAuth()
   const { selectedMonth, year, monthLabel } = useMonth()
 
   const [debts, setDebts] = useState<Debt[]>([])
@@ -34,15 +32,14 @@ export function DebtsTable() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!token) return
     let cancelled = false
-    fetchDebts(token).then((data) => {
+    fetchDebts().then((data) => {
       if (!cancelled) setDebts(data)
     })
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [])
 
   function startEdit(debt: Debt) {
     setEditingId(debt.id)
@@ -118,11 +115,11 @@ export function DebtsTable() {
       }
 
       if (editingId !== null) {
-        const updated = await updateDebt(token!, editingId, payload)
+        const updated = await updateDebt(editingId, payload)
         setDebts((prev) => prev.map((debt) => (debt.id === editingId ? updated : debt)))
         setEditingId(null)
       } else {
-        const created = await createDebt(token!, payload)
+        const created = await createDebt(payload)
         setDebts((prev) => [...prev, created])
       }
 
@@ -137,7 +134,7 @@ export function DebtsTable() {
   async function handleDelete(id: number) {
     if (editingId === id) cancelEdit()
     setDebts((prev) => prev.filter((debt) => debt.id !== id))
-    await deleteDebt(token!, id)
+    await deleteDebt(id)
   }
 
   const visibleDebts = getVisibleDebts(debts, selectedMonth, year)

@@ -1,6 +1,6 @@
 # Financial Control
 
-Sistema web de controle financeiro pessoal: login, Dashboard com gráficos e
+Sistema web de controle financeiro pessoal: Dashboard com gráficos e
 resumos, Renda, Dívidas (com recorrência), Pagamentos Mês, Gasto Mês (com
 leitura de fatura em PDF) e Configurações. Interface em **Neo-Brutalism**
 (bordas grossas, sombras duras, cores chapadas), com modo claro/escuro.
@@ -13,15 +13,15 @@ leitura de fatura em PDF) e Configurações. Interface em **Neo-Brutalism**
   mesmo app Express do backend).
 - `vercel.json` — configuração de build/deploy do monorepo.
 
-## Credenciais de acesso (usuários seed)
+## Acesso
 
-| Usuário  | Senha   |
-| -------- | ------- |
-| `Brunno.` | `7753955` |
-| `Carol.` | `051297` |
+Não há tela de login: o app abre direto no Dashboard e a API não exige
+autenticação. Como qualquer pessoa com a URL do deploy consegue ler e editar os
+dados, mantenha o deploy privado (ex.: proteção de acesso da Vercel) se ele
+estiver publicado na internet.
 
-Os usuários são criados automaticamente (seed) na primeira vez que o backend
-roda, junto com alguns pagamentos de exemplo e opções padrão de Renda.
+Na primeira vez que o backend roda, ele cria o schema e semeia alguns
+pagamentos de exemplo e as opções padrão de Renda.
 
 ## Como rodar localmente
 
@@ -39,7 +39,7 @@ createdb financial_control
 ```bash
 cd backend
 npm install
-cp .env.example .env   # ajuste DATABASE_URL, PORT e JWT_SECRET
+cp .env.example .env   # ajuste DATABASE_URL e PORT
 npm start
 ```
 

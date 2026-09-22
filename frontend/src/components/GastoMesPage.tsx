@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useMonth } from '../context/MonthContext'
 import { fetchPayments, type Payment } from '../api/paymentsApi'
 import { CardExpensePanel } from './CardExpensePanel'
@@ -8,20 +7,18 @@ import './GastoMesPage.css'
 export const CARD_CATEGORIES = ['Cartão', 'Cartão de Loja']
 
 export function GastoMesPage() {
-  const { token } = useAuth()
   const { selectedMonth, year, monthLabel } = useMonth()
   const [payments, setPayments] = useState<Payment[]>([])
 
   useEffect(() => {
-    if (!token) return
     let cancelled = false
-    fetchPayments(token).then((data) => {
+    fetchPayments().then((data) => {
       if (!cancelled) setPayments(data)
     })
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [])
 
   const cardPayments = payments.filter((payment) => {
     if (!CARD_CATEGORIES.includes(payment.categoria)) return false
