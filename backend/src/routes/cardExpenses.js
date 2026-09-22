@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { pool } from '../db.js';
-import { requireAuth } from '../auth.js';
 import { parseFaturaPdf } from '../services/faturaParser.js';
 
 export const cardExpensesRouter = Router();
@@ -25,7 +24,7 @@ function toResponse(row) {
   };
 }
 
-cardExpensesRouter.get('/', requireAuth, async (req, res) => {
+cardExpensesRouter.get('/', async (req, res) => {
   if (req.query.paymentId === undefined) {
     const { rows } = await pool.query('SELECT * FROM card_expenses ORDER BY created_at DESC, id DESC');
     return res.json({ expenses: rows.map(toResponse) });
@@ -66,7 +65,7 @@ function validateExpense(body) {
   return null;
 }
 
-cardExpensesRouter.post('/', requireAuth, async (req, res) => {
+cardExpensesRouter.post('/', async (req, res) => {
   const error = validateExpense(req.body);
   if (error) {
     return res.status(400).json({ message: error });
@@ -88,7 +87,7 @@ cardExpensesRouter.post('/', requireAuth, async (req, res) => {
   res.status(201).json({ expense: toResponse(rows[0]) });
 });
 
-cardExpensesRouter.delete('/:id', requireAuth, async (req, res) => {
+cardExpensesRouter.delete('/:id', async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ message: 'Identificador inválido.' });
@@ -98,7 +97,7 @@ cardExpensesRouter.delete('/:id', requireAuth, async (req, res) => {
   res.status(204).send();
 });
 
-cardExpensesRouter.post('/import', requireAuth, upload.single('file'), async (req, res) => {
+cardExpensesRouter.post('/import', upload.single('file'), async (req, res) => {
   const paymentId = Number(req.body.paymentId);
   if (!Number.isInteger(paymentId)) {
     return res.status(400).json({ message: 'Informe um paymentId válido.' });

@@ -1,4 +1,4 @@
-import { parseError } from './authApi'
+import { parseError } from './client'
 
 export interface Debt {
   id: number
@@ -26,10 +26,8 @@ export interface NewDebt {
   recorrente: boolean
 }
 
-export async function fetchDebts(token: string): Promise<Debt[]> {
-  const response = await fetch('/api/debts', {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+export async function fetchDebts(): Promise<Debt[]> {
+  const response = await fetch('/api/debts')
 
   if (!response.ok) {
     await parseError(response)
@@ -39,10 +37,10 @@ export async function fetchDebts(token: string): Promise<Debt[]> {
   return data.debts
 }
 
-export async function createDebt(token: string, debt: NewDebt): Promise<Debt> {
+export async function createDebt(debt: NewDebt): Promise<Debt> {
   const response = await fetch('/api/debts', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(debt),
   })
 
@@ -54,10 +52,10 @@ export async function createDebt(token: string, debt: NewDebt): Promise<Debt> {
   return data.debt
 }
 
-export async function updateDebt(token: string, id: number, debt: NewDebt): Promise<Debt> {
+export async function updateDebt(id: number, debt: NewDebt): Promise<Debt> {
   const response = await fetch(`/api/debts/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(debt),
   })
 
@@ -69,10 +67,9 @@ export async function updateDebt(token: string, id: number, debt: NewDebt): Prom
   return data.debt
 }
 
-export async function deleteDebt(token: string, id: number): Promise<void> {
+export async function deleteDebt(id: number): Promise<void> {
   const response = await fetch(`/api/debts/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
   })
 
   if (!response.ok) {

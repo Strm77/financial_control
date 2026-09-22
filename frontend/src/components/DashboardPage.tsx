@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useAuth } from '../context/AuthContext'
 import { useMonth, MONTH_NAMES } from '../context/MonthContext'
 import { fetchIncomes, type Income } from '../api/incomesApi'
 import { fetchDebts, type Debt } from '../api/debtsApi'
@@ -25,7 +24,6 @@ const CATEGORIA_COLORS: Record<string, string> = {
 const STATUS_ORDER: PaymentStatus[] = ['pago', 'parcial', 'pendente', 'atrasado']
 
 export function DashboardPage() {
-  const { token } = useAuth()
   const { selectedMonth, year, monthLabel, payments } = useMonth()
 
   const [incomes, setIncomes] = useState<Income[]>([])
@@ -33,9 +31,8 @@ export function DashboardPage() {
   const [cardExpenses, setCardExpenses] = useState<CardExpense[]>([])
 
   useEffect(() => {
-    if (!token) return
     let cancelled = false
-    Promise.all([fetchIncomes(token), fetchDebts(token), fetchAllCardExpenses(token)]).then(
+    Promise.all([fetchIncomes(), fetchDebts(), fetchAllCardExpenses()]).then(
       ([incomesData, debtsData, expensesData]) => {
         if (cancelled) return
         setIncomes(incomesData)
@@ -46,7 +43,7 @@ export function DashboardPage() {
     return () => {
       cancelled = true
     }
-  }, [token])
+  }, [])
 
   const filteredIncomes = incomes.filter((income) => {
     if (selectedMonth === 'all') return true

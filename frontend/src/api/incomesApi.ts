@@ -1,4 +1,4 @@
-import { parseError } from './authApi'
+import { parseError } from './client'
 
 export interface Income {
   id: number
@@ -16,10 +16,8 @@ export interface NewIncome {
   amountCents: number
 }
 
-export async function fetchIncomes(token: string): Promise<Income[]> {
-  const response = await fetch('/api/incomes', {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+export async function fetchIncomes(): Promise<Income[]> {
+  const response = await fetch('/api/incomes')
 
   if (!response.ok) {
     await parseError(response)
@@ -29,10 +27,10 @@ export async function fetchIncomes(token: string): Promise<Income[]> {
   return data.incomes
 }
 
-export async function createIncome(token: string, income: NewIncome): Promise<Income> {
+export async function createIncome(income: NewIncome): Promise<Income> {
   const response = await fetch('/api/incomes', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(income),
   })
 
@@ -44,10 +42,10 @@ export async function createIncome(token: string, income: NewIncome): Promise<In
   return data.income
 }
 
-export async function updateIncome(token: string, id: number, income: NewIncome): Promise<Income> {
+export async function updateIncome(id: number, income: NewIncome): Promise<Income> {
   const response = await fetch(`/api/incomes/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(income),
   })
 
@@ -59,10 +57,9 @@ export async function updateIncome(token: string, id: number, income: NewIncome)
   return data.income
 }
 
-export async function deleteIncome(token: string, id: number): Promise<void> {
+export async function deleteIncome(id: number): Promise<void> {
   const response = await fetch(`/api/incomes/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
   })
 
   if (!response.ok) {

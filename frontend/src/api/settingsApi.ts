@@ -1,4 +1,4 @@
-import { parseError } from './authApi'
+import { parseError } from './client'
 
 export interface SelectOption {
   id: number
@@ -6,10 +6,8 @@ export interface SelectOption {
   label: string
 }
 
-export async function fetchOptions(token: string, section: string): Promise<SelectOption[]> {
-  const response = await fetch(`/api/settings/options?section=${encodeURIComponent(section)}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+export async function fetchOptions(section: string): Promise<SelectOption[]> {
+  const response = await fetch(`/api/settings/options?section=${encodeURIComponent(section)}`)
 
   if (!response.ok) {
     await parseError(response)
@@ -20,14 +18,13 @@ export async function fetchOptions(token: string, section: string): Promise<Sele
 }
 
 export async function createOption(
-  token: string,
   section: string,
   field: string,
   label: string,
 ): Promise<SelectOption> {
   const response = await fetch('/api/settings/options', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ section, field, label }),
   })
 
@@ -39,10 +36,9 @@ export async function createOption(
   return data.option
 }
 
-export async function deleteOption(token: string, id: number): Promise<void> {
+export async function deleteOption(id: number): Promise<void> {
   const response = await fetch(`/api/settings/options/${id}`, {
     method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
   })
 
   if (!response.ok) {

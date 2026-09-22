@@ -40,13 +40,6 @@ Em **Project Settings → Environment Variables**, adicione:
 | Nome | Valor |
 | --- | --- |
 | `DATABASE_URL` | A connection string do passo 1 (pule se usou Vercel Postgres — já vem pronto como `POSTGRES_URL`) |
-| `JWT_SECRET` | Uma string aleatória forte — gere uma com o comando abaixo |
-
-Gerar um `JWT_SECRET` seguro:
-
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
 
 ## 4. Deploy
 
@@ -56,21 +49,15 @@ Clique em **Deploy**. A Vercel vai:
 - Publicar `api/index.js` como função serverless em `/api/*`
 
 Na primeira requisição à API, o backend cria as tabelas automaticamente e
-semeia os dois usuários iniciais:
-
-| Usuário | Senha |
-| --- | --- |
-| `Brunno.` | `7753955` |
-| `Carol.` | `051297` |
-
-Não é preciso rodar nenhuma migration manual.
+semeia pagamentos de exemplo e as opções padrão de Renda. Não é preciso rodar
+nenhuma migration manual.
 
 ## 5. Depois de publicado
 
-- Troque as senhas dos usuários seed assim que possível (não há tela de troca
-  de senha ainda — se quiser, é só pedir).
+- O app não tem login e a API é aberta: quem tiver a URL lê e edita os dados.
+  Se o deploy for público, ative alguma proteção de acesso na Vercel.
 - Cada redeploy é seguro: a criação de tabelas usa `CREATE TABLE IF NOT EXISTS`
-  e o seed de usuários só insere quem ainda não existe.
+  e os seeds só inserem o que ainda não existe.
 - Se trocar de banco depois, basta atualizar `DATABASE_URL` nas env vars e
   fazer um redeploy — o schema é recriado do zero automaticamente.
 
